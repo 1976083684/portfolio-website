@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="pageTitle">陈逸飞 | 全栈开发工程师</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#07070d;--bg-s:#0e0e17;--card:#12121d;--card-h:#191926;
+      --bdr:rgba(255,255,255,0.05);--bdr-h:rgba(0,229,160,0.25);
+      --pri:#00e5a0;--pri-d:rgba(0,229,160,0.12);
+      --acc:#ff6b2b;--acc-d:rgba(255,107,43,0.12);
+      --txt:#e8e8f0;--txt2:#8888a0;--txt3:#555570;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--pri) var(--bg)}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden}
+    h1,h2,h3,h4,h5,h6{font-family:'Space Grotesk',sans-serif}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--pri);border-radius:3px}
+
+    .nav-glass{background:rgba(7,7,13,0.82);backdrop-filter:blur(24px);border-bottom:1px solid var(--bdr)}
+    .nav-link{position:relative;color:var(--txt2);transition:color .3s;text-decoration:none}
+    .nav-link:hover,.nav-link.active{color:var(--pri)}
+    .nav-link::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:2px;background:var(--pri);transition:width .3s}
+    .nav-link:hover::after,.nav-link.active::after{width:100%}
+
+    #heroCanvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;display:block}
+    .hero-grad{position:absolute;bottom:0;left:0;right:0;height:220px;background:linear-gradient(to top,var(--bg),transparent);z-index:1}
+    .typing-cursor{display:inline-block;width:3px;height:1em;background:var(--pri);margin-left:4px;animation:blink 1s infinite;vertical-align:text-bottom}
+    @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+
+    .sec-title{font-size:2.5rem;font-weight:700;letter-spacing:-0.02em}
+    .sec-title span{color:var(--pri)}
+    .glow-dot{width:8px;height:8px;border-radius:50%;background:var(--pri);box-shadow:0 0 12px var(--pri),0 0 24px rgba(0,229,160,0.3)}
+    .card-b{background:var(--card);border:1px solid var(--bdr);border-radius:16px;transition:all .4s cubic-bezier(.25,.46,.45,.94)}
+    .card-b:hover{border-color:var(--bdr-h);background:var(--card-h);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,229,160,0.06)}
+
+    .tag{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:500;background:var(--pri-d);color:var(--pri);border:1px solid rgba(0,229,160,0.18)}
+    .tag-acc{background:var(--acc-d);color:var(--acc);border-color:rgba(255,107,43,0.18)}
+
+    .btn-p{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--pri);color:var(--bg);font-weight:600;border-radius:12px;border:none;cursor:pointer;transition:all .3s;font-size:.95rem;font-family:inherit}
+    .btn-p:hover{box-shadow:0 8px 30px rgba(0,229,160,0.3);transform:translateY(-2px)}
+    .btn-o{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:transparent;color:var(--pri);font-weight:600;border-radius:12px;border:1px solid rgba(0,229,160,0.35);cursor:pointer;transition:all .3s;font-size:.95rem;font-family:inherit}
+    .btn-o:hover{background:var(--pri-d);border-color:var(--pri)}
+    .btn-sm{padding:6px 16px;font-size:.8rem;border-radius:8px}
+    .btn-danger{background:rgba(255,60,60,0.12)!important;color:#ff5555!important;border:1px solid rgba(255,60,60,0.25)!important}
+    .btn-danger:hover{background:rgba(255,60,60,0.22)!important}
+
+    .reveal{opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.25,.46,.45,.94)}
+    .reveal.visible{opacity:1;transform:translateY(0)}
+
+    .skill-bg{height:5px;border-radius:3px;background:rgba(255,255,255,0.05);overflow:hidden}
+    .skill-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--pri),#00b8d4);transform:scaleX(0);transform-origin:left;transition:transform 1.2s cubic-bezier(.25,.46,.45,.94)}
+    .skill-fill.anim{transform:scaleX(1)}
+
+    .filter-btn{padding:6px 18px;border-radius:20px;border:1px solid var(--bdr);background:transparent;color:var(--txt2);cursor:pointer;transition:all .3s;font-size:.85rem;font-family:inherit}
+    .filter-btn:hover,.filter-btn.active{background:var(--pri-d);color:var(--pri);border-color:rgba(0,229,160,0.35)}
+
+    .proj-img{width:100%;height:200px;object-fit:cover;border-radius:16px 16px 0 0}
+    .proj-desc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .proj-card .overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(7,7,13,0.97) 0%,rgba(7,7,13,0.5) 50%,transparent 100%);opacity:0;transition:opacity .4s;border-radius:16px;display:flex;align-items:flex-end;padding:20px;z-index:2}
+    .proj-card:hover .overlay{opacity:1}
+    .overlay-btns{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+    .overlay-btns a,.overlay-btns button{font-size:.78rem;padding:7px 16px;border-radius:8px;cursor:pointer;text-decoration:none;font-family:inherit;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:all .3s}
+
+    .stars{display:flex;gap:2px;align-items:center}.stars i{font-size:.72rem}.stars .fa-solid{color:var(--acc)}.stars .fa-regular{color:var(--txt3)}
+
+    .detail-ov{position:fixed;inset:0;z-index:9990;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:20px}
+    .detail-ov.open{display:flex}
+    .detail-box{background:var(--bg-s);border:1px solid var(--bdr);border-radius:20px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;animation:dIn .35s ease}
+    @keyframes dIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+    .detail-box img{width:100%;height:300px;object-fit:cover;border-radius:20px 20px 0 0}
+
+    .login-ov{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center}
+    .login-ov.open{display:flex}
+    .login-box{background:var(--bg-s);border:1px solid var(--bdr);border-radius:20px;padding:40px;max-width:380px;width:90%;text-align:center;animation:dIn .35s ease}
+
+    .admin-ov{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);display:none}
+    .admin-ov.open{display:flex}
+    .admin-panel{width:92%;max-width:920px;max-height:90vh;background:var(--bg-s);border:1px solid var(--bdr);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;margin:auto}
+    .admin-tabs{display:flex;border-bottom:1px solid var(--bdr);overflow-x:auto;flex-shrink:0}
+    .admin-tab{padding:14px 20px;color:var(--txt2);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .3s;font-size:.88rem;background:none;font-family:inherit}
+    .admin-tab:hover{color:var(--txt)}.admin-tab.active{color:var(--pri);border-bottom-color:var(--pri)}
+    .admin-body{flex:1;overflow-y:auto;padding:24px}
+    .af{margin-bottom:16px}.af label{display:block;margin-bottom:6px;font-size:.84rem;color:var(--txt2);font-weight:500}
+    .af input,.af textarea,.af select{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--bdr);border-radius:10px;color:var(--txt);font-size:.9rem;font-family:inherit;transition:border-color .3s}
+    .af input:focus,.af textarea:focus{outline:none;border-color:var(--pri)}
+    .af textarea{min-height:80px;resize:vertical}
+    .a-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg);border:1px solid var(--bdr);border-radius:12px;margin-bottom:8px;transition:all .3s;gap:12px}
+    .a-item:hover{border-color:var(--bdr-h)}
+    .a-item-act{display:flex;gap:8px;flex-shrink:0}
+
+    .toast-c{position:fixed;top:80px;right:20px;z-index:999999;display:flex;flex-direction:column;gap:10px}
+    .toast{padding:14px 24px;border-radius:12px;font-size:.88rem;animation:tsIn .4s ease;min-width:260px}
+    .toast-ok{background:rgba(0,229,160,0.12);border:1px solid rgba(0,229,160,0.25);color:var(--pri)}
+    .toast-err{background:rgba(255,60,60,0.12);border:1px solid rgba(255,60,60,0.25);color:#ff5555}
+    @keyframes tsIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+    .admin-trigger{position:fixed;bottom:24px;right:24px;z-index:1000;width:48px;height:48px;border-radius:50%;background:var(--card);border:1px solid var(--bdr);color:var(--txt3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;font-size:1.1rem}
+    .admin-trigger:hover{color:var(--pri);border-color:var(--bdr-h);transform:rotate(90deg)}
+
+    .social-lk{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;border:1px solid var(--bdr);color:var(--txt2);transition:all .3s;text-decoration:none}
+    .social-lk:hover{color:var(--pri);border-color:var(--bdr-h);background:var(--pri-d);transform:translateY(-3px)}
+
+    .cursor-glow{position:fixed;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,160,0.05) 0%,transparent 70%);pointer-events:none;z-index:0;transform:translate(-50%,-50%)}
+    .stat-num{font-family:'Space Grotesk',sans-serif;font-size:2.5rem;font-weight:700;color:var(--pri);line-height:1}
+    .c-input{width:100%;padding:14px 18px;background:var(--bg);border:1px solid var(--bdr);border-radius:12px;color:var(--txt);font-size:.95rem;font-family:inherit;transition:border-color .3s}
+    .c-input:focus{outline:none;border-color:var(--pri)}
+
+    .cfm-dlg{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,0.7);display:none;align-items:center;justify-content:center}
+    .cfm-dlg.open{display:flex}
+    .cfm-box{background:var(--bg-s);border:1px solid var(--bdr);border-radius:16px;padding:32px;max-width:400px;width:90%;text-align:center}
+
+    .mob-menu{display:none;position:fixed;inset:0;z-index:9998;background:rgba(7,7,13,0.98);backdrop-filter:blur(20px);flex-direction:column;align-items:center;justify-content:center;gap:32px}
+    .mob-menu.open{display:flex}
+    .mob-menu a{font-size:1.5rem;color:var(--txt);text-decoration:none;font-family:'Space Grotesk',sans-serif}
+    .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+    .hamburger span{width:24px;height:2px;background:var(--txt);transition:all .3s}
+
+    .tl-item{display:flex;gap:20px;position:relative;margin-bottom:32px}.tl-item:last-child{margin-bottom:0}
+    .tl-marker{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:20px}
+    .tl-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--pri);background:var(--bg);flex-shrink:0;margin-top:6px;z-index:1}
+    .tl-line{width:2px;flex:1;background:linear-gradient(to bottom,var(--pri),var(--txt3),transparent);margin-top:4px}
+    .tl-item:last-child .tl-line{display:none}
+    .tl-content{flex:1;min-width:0}
+
+    .star-pick{display:flex;gap:6px;cursor:pointer}.star-pick i{font-size:1.2rem;color:var(--txt3);transition:color .2s}.star-pick i.on{color:var(--acc)}
+    .img-prev{max-width:200px;max-height:120px;border-radius:8px;margin-top:8px;object-fit:cover;border:1px solid var(--bdr)}
+
+    /* 密码可见性切换 */
+    .pwd-wrap{position:relative}.pwd-wrap input{padding-right:44px!important}
+    .pwd-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--txt3);cursor:pointer;font-size:.95rem;padding:4px;transition:color .2s}
+    .pwd-toggle:hover{color:var(--txt)}
+
+    /* 开关 */
+    .sw{position:relative;width:44px;height:24px;display:inline-block;flex-shrink:0}
+    .sw input{opacity:0;width:0;height:0}
+    .sw .sl{position:absolute;cursor:pointer;inset:0;background:var(--txt3);border-radius:24px;transition:.3s}
+    .sw .sl::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.3s}
+    .sw input:checked+.sl{background:var(--pri)}
+    .sw input:checked+.sl::before{transform:translateX(20px)}
+
+    @media(max-width:768px){
+      .sec-title{font-size:1.8rem}.stat-num{font-size:1.8rem}
+      .hamburger{display:flex}.desk-nav{display:none!important}
+      .admin-panel{width:96%;max-height:95vh}.detail-box img{height:200px}
+    }
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <div class="cursor-glow" id="cursorGlow"></div>
+  <div class="toast-c" id="toastC"></div>
+
+  <div class="cfm-dlg" id="cfmDlg"><div class="cfm-box"><p id="cfmMsg" style="margin-bottom:20px;font-size:1.05rem"></p><div style="display:flex;gap:12px;justify-content:center"><button class="btn-o btn-sm" id="cfmNo">取消</button><button class="btn-p btn-sm" style="background:#ff5555" id="cfmYes">确认删除</button></div></div></div>
+
+  <div class="detail-ov" id="detailOv"><div class="detail-box" id="detailBox"></div></div>
+
+  <div class="login-ov" id="loginOv">
+    <div class="login-box">
+      <div class="glow-dot" style="margin:0 auto 20px"></div>
+      <h3 style="font-family:'Space Grotesk';margin-bottom:8px">管理面板</h3>
+      <p style="color:var(--txt2);font-size:.9rem;margin-bottom:8px">请输入管理密码</p>
+          <p style="color:var(--txt3);font-size:.75rem;margin-bottom:16px">默认密码：admin</p>
+      <div class="pwd-wrap"><input type="password" id="loginPwd" class="c-input" placeholder="密码" aria-label="管理密码"><button class="pwd-toggle" onclick="togglePwdVis('loginPwd',this)" aria-label="显示密码"><i class="fa-solid fa-eye"></i></button></div>
+      <button class="btn-p" style="width:100%;justify-content:center;margin-top:16px" onclick="tryLogin()"><i class="fa-solid fa-lock-open"></i> 进入</button>
+      <button class="btn-o btn-sm" style="margin-top:12px" onclick="closeLogin()">取消</button>
+    </div>
+  </div>
+
+  <nav class="nav-glass fixed top-0 left-0 right-0 z-50 px-6 py-4">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <a href="#hero" class="text-xl font-bold" style="font-family:'Space Grotesk';color:var(--pri);text-decoration:none" id="navLogo">YF.</a>
+      <div class="desk-nav flex items-center gap-8" id="deskNav">
+        <a href="#about" class="nav-link text-sm">关于</a>
+        <a href="#projects" class="nav-link text-sm">作品</a>
+        <a href="#skills" class="nav-link text-sm">技能</a>
+        <a href="#experience" class="nav-link text-sm">经历</a>
+        <a href="#contact" class="nav-link text-sm">联系</a>
+      </div>
+      <div class="hamburger" id="hamburger" role="button" tabindex="0" aria-label="菜单"><span></span><span></span><span></span></div>
+    </div>
+  </nav>
+
+  <div class="mob-menu" id="mobMenu"><a href="#about" onclick="closeMM()">关于</a><a href="#projects" onclick="closeMM()">作品</a><a href="#skills" onclick="closeMM()">技能</a><a href="#experience" onclick="closeMM()">经历</a><a href="#contact" onclick="closeMM()">联系</a></div>
+
+  <header id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <canvas id="heroCanvas"></canvas>
+    <div class="hero-grad"></div>
+    <div class="relative z-10 text-center px-6" style="max-width:800px">
+      <div class="mb-6 flex justify-center"><div class="glow-dot"></div></div>
+      <p class="text-sm tracking-widest uppercase mb-4" style="color:var(--txt3)">Hello, World</p>
+      <h1 class="text-5xl md:text-7xl font-bold mb-4" style="letter-spacing:-0.03em" id="heroName"></h1>
+      <p class="text-xl md:text-2xl mb-2" style="color:var(--pri);font-family:'Space Grotesk';font-weight:500"><span id="typingText"></span><span class="typing-cursor"></span></p>
+      <p class="text-base md:text-lg mt-4 mb-8" style="color:var(--txt2);max-width:560px;margin-left:auto;margin-right:auto" id="heroBio"></p>
+      <div class="flex items-center justify-center gap-4 mb-8" id="heroSocial"></div>
+      <div class="flex items-center justify-center gap-4">
+        <a href="#projects" class="btn-p"><i class="fa-solid fa-folder-open"></i> 查看作品</a>
+        <a href="#contact" class="btn-o"><i class="fa-solid fa-paper-plane"></i> 联系我</a>
+      </div>
+    </div>
+    <a href="#about" class="absolute bottom-8 left-1/2 z-10" style="transform:translateX(-50%);animation:flt 2s ease-in-out infinite;text-decoration:none" aria-label="向下滚动"><i class="fa-solid fa-chevron-down" style="color:var(--txt3);font-size:1.2rem"></i></a>
+    <style>@keyframes flt{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-10px)}}</style>
+  </header>
+
+  <section id="about" class="py-24 px-6"><div class="max-w-6xl mx-auto"><div class="reveal grid md:grid-cols-2 gap-16 items-center"><div><p class="text-sm tracking-widest uppercase mb-3" style="color:var(--pri)">About Me</p><h2 class="sec-title mb-6">关于<span>我</span></h2><p class="mb-4 leading-relaxed" style="color:var(--txt2)" id="aboutT1"></p><p class="leading-relaxed" style="color:var(--txt2)" id="aboutT2"></p></div><div class="grid grid-cols-2 gap-6" id="statsGrid"></div></div></div></section>
+
+  <section id="projects" class="py-24 px-6" style="background:var(--bg-s)"><div class="max-w-6xl mx-auto"><div class="reveal text-center mb-12"><p class="text-sm tracking-widest uppercase mb-3" style="color:var(--pri)">Portfolio</p><h2 class="sec-title">精选<span>作品</span></h2></div><div class="reveal flex flex-wrap justify-center gap-3 mb-10" id="filterBar"></div><div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="projGrid"></div></div></section>
+
+  <section id="skills" class="py-24 px-6"><div class="max-w-6xl mx-auto"><div class="reveal text-center mb-12"><p class="text-sm tracking-widest uppercase mb-3" style="color:var(--pri)">Skills</p><h2 class="sec-title">技术<span>栈</span></h2></div><div class="reveal grid md:grid-cols-2 gap-8" id="skillsC"></div></div></section>
+
+  <section id="experience" class="py-24 px-6" style="background:var(--bg-s)"><div class="max-w-4xl mx-auto"><div class="reveal text-center mb-12"><p class="text-sm tracking-widest uppercase mb-3" style="color:var(--pri)">Experience</p><h2 class="sec-title">工作<span>经历</span></h2></div><div class="reveal" id="timeline"></div></div></section>
+
+  <section id="contact" class="py-24 px-6"><div class="max-w-4xl mx-auto"><div class="reveal text-center mb-12"><p class="text-sm tracking-widest uppercase mb-3" style="color:var(--pri)">Contact</p><h2 class="sec-title">联系<span>我</span></h2></div><div class="reveal grid md:grid-cols-2 gap-12"><div><p class="mb-6 leading-relaxed" style="color:var(--txt2)" id="contactT"></p><div class="space-y-4" id="contactI"></div></div><form id="cForm" class="space-y-4"><input class="c-input" type="text" placeholder="你的名字" required aria-label="名字"><input class="c-input" type="email" placeholder="你的邮箱" required aria-label="邮箱"><textarea class="c-input" rows="4" placeholder="消息内容" required aria-label="消息" style="resize:vertical"></textarea><button type="submit" class="btn-p w-full justify-center"><i class="fa-solid fa-paper-plane"></i> 发送消息</button></form></div></div></section>
+
+  <footer class="py-8 px-6" style="border-top:1px solid var(--bdr)"><div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4"><p class="text-sm" style="color:var(--txt3)" id="footerT"></p><div class="flex items-center gap-4" id="footerS"></div></div></footer>
+
+  <button class="admin-trigger" id="adminTrigger" title="管理面板" aria-label="管理面板"><i class="fa-solid fa-gear"></i></button>
+
+  <div class="admin-ov" id="adminOv">
+    <div class="admin-panel">
+      <div class="flex items-center justify-between px-6 py-4" style="border-bottom:1px solid var(--bdr)">
+        <h3 class="text-lg font-semibold" style="font-family:'Space Grotesk'">管理面板</h3>
+        <button onclick="closeAdmin()" style="color:var(--txt2);background:none;border:none;cursor:pointer;font-size:1.2rem"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="admin-tabs" id="adminTabs">
+        <button class="admin-tab active" data-tab="personal">个人信息</button>
+        <button class="admin-tab" data-tab="projects">作品管理</button>
+        <button class="admin-tab" data-tab="skills">技能管理</button>
+        <button class="admin-tab" data-tab="experience">经历管理</button>
+        <button class="admin-tab" data-tab="data">数据管理</button>
+      </div>
+      <div class="admin-body" id="adminBody"></div>
+    </div>
+  </div>
+
+<script>
+// ============================================================
+//   默认配置
+// ============================================================
+const DEF_CFG={
+  personal:{
+    name:"陈逸飞",logo:"YF.",
+    titles:["全栈开发工程师","前端架构师","开源贡献者","UI/UX 爱好者"],
+    bio:"热爱构建优雅且高性能的 Web 应用，5年全栈开发经验，专注前端工程化与用户体验",
+    aboutText1:"我是一名全栈开发工程师，专注于构建高性能、用户友好的 Web 应用。从 Vue、React 到 Node.js、Go，我享受在不同技术栈之间游走，用最合适的工具解决实际问题。",
+    aboutText2:"工作之余，我活跃于开源社区，维护着几个被广泛使用的工具库。我相信好的代码应该像好的设计一样——简洁、优雅、让人愉悦。",
+    location:"上海, 中国",email:"hello@chenyifei.dev",
+    github:"https://github.com/chenyifei",twitter:"https://twitter.com/chenyifei_dev",linkedin:"https://linkedin.com/in/chenyifei",
+    stats:[{id:"s1",label:"年开发经验",value:"5+"},{id:"s2",label:"完成项目",value:"30+"},{id:"s3",label:"合作客户",value:"20+"},{id:"s4",label:"GitHub Stars",value:"1K+"}]
+  },
+  projects:[
+    {id:1,title:"CloudFlow",description:"云端工作流编排平台，支持可视化拖拽构建 CI/CD 管道，实时监控与日志聚合，服务于 50+ 企业团队",tags:["Vue 3","Go","gRPC","K8s"],image:"https://picsum.photos/seed/cloudflow/600/400.jpg",link:"#",github:"#",star:5,showPreview:true,showSource:true,showDetail:true},
+    {id:2,title:"PixelForge",description:"基于 WebGL 的在线图像编辑器，支持图层、滤镜、矢量绘制和实时协作，核心渲染引擎自研",tags:["React","WebGL","TypeScript"],image:"https://picsum.photos/seed/pixelforge/600/400.jpg",link:"#",github:"#",star:5,showPreview:true,showSource:true,showDetail:true},
+    {id:3,title:"DataPulse",description:"实时数据可视化仪表盘，支持百万级数据点渲染，拖拽式图表配置，深色/浅色主题自适应",tags:["Vue 3","D3.js","WebSocket"],image:"https://picsum.photos/seed/datapulse/600/400.jpg",link:"#",github:"#",star:4,showPreview:true,showSource:true,showDetail:true},
+    {id:4,title:"NexusChat",description:"端到端加密即时通讯应用，支持群组、文件共享、语音消息，消息同步延迟小于 100ms",tags:["React","Node.js","Socket.io"],image:"https://picsum.photos/seed/nexuschat/600/400.jpg",link:"#",github:"#",star:3,showPreview:true,showSource:true,showDetail:true},
+    {id:5,title:"SwiftCLI",description:"轻量级命令行工具框架，自动生成帮助文档、参数解析、子命令嵌套，npm 周下载量 2K+",tags:["Node.js","TypeScript"],image:"https://picsum.photos/seed/swiftcli/600/400.jpg",link:"#",github:"#",star:4,showPreview:true,showSource:true,showDetail:true},
+    {id:6,title:"AeroNote",description:"Markdown 笔记应用，支持双向链接、知识图谱、离线使用，数据本地存储注重隐私",tags:["Svelte","IndexedDB","ProseMirror"],image:"https://picsum.photos/seed/aeronote/600/400.jpg",link:"#",github:"#",star:3,showPreview:true,showSource:true,showDetail:true}
+  ],
+  skills:[
+    {category:"前端开发",items:[{name:"Vue.js / Nuxt",level:95},{name:"React / Next.js",level:90},{name:"TypeScript",level:92},{name:"CSS / Tailwind",level:88},{name:"Three.js / WebGL",level:75}]},
+    {category:"后端开发",items:[{name:"Node.js / Express",level:88},{name:"Go / Gin",level:78},{name:"Python / FastAPI",level:72},{name:"PostgreSQL",level:82},{name:"Redis / MongoDB",level:80}]},
+    {category:"DevOps & 工具",items:[{name:"Docker / K8s",level:80},{name:"CI/CD (GitHub Actions)",level:85},{name:"Git / Monorepo",level:90},{name:"Linux / Nginx",level:82},{name:"AWS / Vercel",level:76}]},
+    {category:"设计 & 其他",items:[{name:"Figma",level:78},{name:"UI/UX 设计",level:72},{name:"敏捷 / Scrum",level:80},{name:"技术写作",level:75},{name:"英语 (流利)",level:85}]}
+  ],
+  experiences:[
+    {company:"星辰科技",role:"高级前端工程师",period:"2022 - 至今",description:"主导公司核心产品前端架构升级，从 Vue 2 迁移至 Vue 3 + TypeScript，性能提升 40%。搭建前端监控体系和组件库，团队开发效率提升 30%。"},
+    {company:"云途网络",role:"全栈开发工程师",period:"2020 - 2022",description:"负责数据可视化平台全栈开发，基于 D3.js + Node.js 实现百万级数据点实时渲染。设计并实现 RESTful API，支撑日均百万请求。"},
+    {company:"极简工作室",role:"前端开发工程师",period:"2019 - 2020",description:"参与多个 ToB SaaS 产品开发，独立完成权限管理、动态表单等核心模块。推动团队采用 CI/CD 自动化流程，部署效率提升 60%。"}
+  ]
+};
+
+// ============================================================
+//   工具
+// ============================================================
+const SK='portfolio_cfg',PK='portfolio_pwd';
+function gid(){return '_'+Math.random().toString(36).substr(2,9)}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function hash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return 'h'+Math.abs(h).toString(36)}
+
+// ============================================================
+//   配置管理
+// ============================================================
+function loadCfg(){
+  try{const s=localStorage.getItem(SK);if(s){return migrate(deepMerge(JSON.parse(JSON.stringify(DEF_CFG)),JSON.parse(s)))}}catch(e){}
+  return JSON.parse(JSON.stringify(DEF_CFG));
+}
+function saveCfg(){try{localStorage.setItem(SK,JSON.stringify(cfg))}catch(e){toast('保存失败','err')}}
+function deepMerge(t,s){for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){if(!t[k]||typeof t[k]!=='object')t[k]={};deepMerge(t[k],s[k])}else t[k]=s[k]}return t}
+function migrate(c){
+  if(c.personal.stats&&!Array.isArray(c.personal.stats)){const o=c.personal.stats;c.personal.stats=[];if(o.years)c.personal.stats.push({id:gid(),label:'年开发经验',value:o.years});if(o.projects)c.personal.stats.push({id:gid(),label:'完成项目',value:o.projects});if(o.clients)c.personal.stats.push({id:gid(),label:'合作客户',value:o.clients});if(o.stars)c.personal.stats.push({id:gid(),label:'GitHub Stars',value:o.stars})}
+  if(Array.isArray(c.personal.stats))c.personal.stats.forEach(s=>{if(!s.id)s.id=gid()});
+  c.projects.forEach(p=>{if(p.star===undefined)p.star=3;if(p.showPreview===undefined)p.showPreview=true;if(p.showSource===undefined)p.showSource=true;if(p.showDetail===undefined)p.showDetail=true});
+  return c;
+}
+let cfg=loadCfg();
+
+// ============================================================
+//   密码
+// ============================================================
+function getPwdH(){return localStorage.getItem(PK)||hash('admin')}
+function setPwd(p){localStorage.setItem(PK,hash(p))}
+let unlocked=false;
+
+// 密码明文切换
+function togglePwdVis(inputId,btn){
+  const inp=document.getElementById(inputId);
+  const icon=btn.querySelector('i');
+  if(inp.type==='password'){inp.type='text';icon.className='fa-solid fa-eye-slash'}
+  else{inp.type='password';icon.className='fa-solid fa-eye'}
+}
+
+// ============================================================
+//   Toast / Confirm
+// ============================================================
+function toast(msg,type='ok'){
+  const c=document.getElementById('toastC'),t=document.createElement('div');
+  t.className=`toast toast-${type}`;t.innerHTML=`<i class="fa-solid ${type==='ok'?'fa-circle-check':'fa-circle-exclamation'}"></i> ${msg}`;
+  c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(100%)';t.style.transition='all .4s'},2600);setTimeout(()=>t.remove(),3000);
+}
+let cfmR=null;
+function cfm(msg){return new Promise(r=>{cfmR=r;document.getElementById('cfmMsg').textContent=msg;document.getElementById('cfmDlg').classList.add('open')})}
+document.getElementById('cfmYes').onclick=()=>{document.getElementById('cfmDlg').classList.remove('open');if(cfmR)cfmR(true)};
+document.getElementById('cfmNo').onclick=()=>{document.getElementById('cfmDlg').classList.remove('open');if(cfmR)cfmR(false)};
+
+// ============================================================
+//   动态页面标题
+// ============================================================
+function updateTitle(){
+  const p=cfg.personal;
+  const title=p.titles&&p.titles.length?p.titles[0]:'';
+  document.getElementById('pageTitle').textContent=`${p.name} | ${title}`;
+  document.title=`${p.name} | ${title}`;
+}
+
+// ============================================================
+//   页面渲染
+// ============================================================
+function renderAll(){updateTitle();renderHero();renderAbout();renderProjects();renderSkills();renderExperience();renderContact();renderFooter()}
+
+function renderHero(){
+  const p=cfg.personal;
+  document.getElementById('heroName').textContent=p.name;
+  document.getElementById('navLogo').textContent=p.logo;
+  document.getElementById('heroBio').textContent=p.bio;
+  let sh=[];
+  if(p.github)sh.push(`<a href="${p.github}" target="_blank" class="social-lk" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>`);
+  if(p.twitter)sh.push(`<a href="${p.twitter}" target="_blank" class="social-lk" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>`);
+  if(p.linkedin)sh.push(`<a href="${p.linkedin}" target="_blank" class="social-lk" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>`);
+  if(p.email)sh.push(`<a href="mailto:${p.email}" class="social-lk" aria-label="Email"><i class="fa-solid fa-envelope"></i></a>`);
+  document.getElementById('heroSocial').innerHTML=sh.join('');
+}
+
+function renderAbout(){
+  const p=cfg.personal;
+  document.getElementById('aboutT1').textContent=p.aboutText1;
+  document.getElementById('aboutT2').textContent=p.aboutText2;
+  document.getElementById('statsGrid').innerHTML=(p.stats||[]).map(s=>`
+    <div class="card-b p-6 text-center"><div class="stat-num">${esc(s.value)}</div><p class="mt-2 text-sm" style="color:var(--txt2)">${esc(s.label)}</p></div>
+  `).join('');
+}
+
+function starsH(n){return `<span class="stars">${[1,2,3,4,5].map(i=>`<i class="fa-${i<=n?'solid':'regular'} fa-star"></i>`).join('')}</span>`}
+
+function renderProjects(){
+  const allT=[...new Set(cfg.projects.flatMap(p=>p.tags))];
+  const fb=document.getElementById('filterBar');
+  fb.innerHTML=`<button class="filter-btn active" data-f="all">全部</button>`+allT.map(t=>`<button class="filter-btn" data-f="${t}">${t}</button>`).join('');
+  fb.querySelectorAll('.filter-btn').forEach(b=>{b.addEventListener('click',()=>{fb.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderProjGrid(b.dataset.f)})});
+  renderProjGrid('all');
+}
+
+function renderProjGrid(f){
+  const g=document.getElementById('projGrid');
+  const sorted=[...cfg.projects].sort((a,b)=>(b.star||0)-(a.star||0));
+  const list=f==='all'?sorted:sorted.filter(p=>p.tags.includes(f));
+  g.innerHTML=list.map(p=>{
+    // 构建overlay中的按钮
+    let ovBtns=[];
+    if(p.showPreview!==false&&p.link) ovBtns.push(`<a href="${p.link}" target="_blank" style="background:var(--pri);color:var(--bg)"><i class="fa-solid fa-arrow-up-right-from-square"></i> 预览</a>`);
+    if(p.showSource!==false&&p.github) ovBtns.push(`<a href="${p.github}" target="_blank" style="background:transparent;color:var(--pri);border:1px solid rgba(0,229,160,0.4)"><i class="fa-brands fa-github"></i> 源码</a>`);
+    if(p.showDetail!==false) ovBtns.push(`<button onclick="openDetail(${p.id})" style="background:var(--pri-d);color:var(--pri);border:1px solid rgba(0,229,160,0.3)"><i class="fa-solid fa-expand"></i> 详情</button>`);
+
+    return `<article class="proj-card card-b relative overflow-hidden" data-id="${p.id}">
+      <img src="${p.image}" alt="${esc(p.title)}" class="proj-img" loading="lazy" onerror="this.src='https://picsum.photos/seed/fb${p.id}/600/400.jpg'">
+      <div class="p-5">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-lg font-semibold" style="font-family:'Space Grotesk'">${esc(p.title)}</h3>
+          ${starsH(p.star||0)}
+        </div>
+        <p class="proj-desc text-sm mb-3 leading-relaxed" style="color:var(--txt2)">${esc(p.description)}</p>
+        <div class="flex flex-wrap gap-2">${p.tags.slice(0,3).map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+      <div class="overlay"><div class="overlay-btns">${ovBtns.join('')}</div></div>
+    </article>`;
+  }).join('');
+}
+
+function openDetail(id){
+  const p=cfg.projects.find(x=>x.id===id);if(!p)return;
+  const b=document.getElementById('detailBox');
+  b.innerHTML=`
+    <img src="${p.image}" alt="${esc(p.title)}" onerror="this.src='https://picsum.photos/seed/fb${p.id}/600/400.jpg'">
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-2xl font-bold" style="font-family:'Space Grotesk'">${esc(p.title)}</h2>
+        ${starsH(p.star||0)}
+      </div>
+      <p class="leading-relaxed mb-4" style="color:var(--txt2)">${esc(p.description)}</p>
+      <div class="flex flex-wrap gap-2 mb-5">${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <div class="flex gap-3">
+        ${p.link?`<a href="${p.link}" target="_blank" class="btn-p btn-sm"><i class="fa-solid fa-arrow-up-right-from-square"></i> 在线预览</a>`:''}
+        ${p.github?`<a href="${p.github}" target="_blank" class="btn-o btn-sm"><i class="fa-brands fa-github"></i> 查看源码</a>`:''}
+      </div>
+    </div>
+    <button onclick="closeDetail()" style="position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.6);border:none;color:white;cursor:pointer;font-size:1rem;backdrop-filter:blur(4px)" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+  `;
+  document.getElementById('detailOv').classList.add('open');document.body.style.overflow='hidden';
+}
+function closeDetail(){document.getElementById('detailOv').classList.remove('open');document.body.style.overflow=''}
+document.getElementById('detailOv').addEventListener('click',e=>{if(e.target===document.getElementById('detailOv'))closeDetail()});
+
+function renderSkills(){
+  document.getElementById('skillsC').innerHTML=cfg.skills.map(g=>`
+    <div class="card-b p-6">
+      <h3 class="text-lg font-semibold mb-5" style="color:var(--pri)">${esc(g.category)}</h3>
+      <div class="space-y-4">${g.items.map(s=>`
+        <div><div class="flex justify-between mb-2"><span class="text-sm font-medium">${esc(s.name)}</span><span class="text-sm" style="color:var(--txt3)">${s.level}%</span></div><div class="skill-bg"><div class="skill-fill" style="width:${s.level}%"></div></div></div>
+      `).join('')}</div>
+    </div>
+  `).join('');
+}
+
+function renderExperience(){
+  document.getElementById('timeline').innerHTML=cfg.experiences.map((exp,i)=>`
+    <div class="tl-item">
+      <div class="tl-marker"><div class="tl-dot"></div>${i<cfg.experiences.length-1?'<div class="tl-line"></div>':''}</div>
+      <div class="tl-content">
+        <div class="card-b p-5" style="margin-bottom:0">
+          <div class="flex flex-wrap items-center gap-3 mb-2"><h3 class="font-semibold" style="font-family:'Space Grotesk'">${esc(exp.role)}</h3><span class="tag">${esc(exp.period)}</span></div>
+          <p class="text-sm mb-2 font-medium" style="color:var(--pri)">${esc(exp.company)}</p>
+          <p class="text-sm leading-relaxed" style="color:var(--txt2)">${esc(exp.description)}</p>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderContact(){
+  const p=cfg.personal;
+  document.getElementById('contactT').textContent='无论是项目合作、技术交流，还是任何想法，都欢迎联系我。我会尽快回复你的消息。';
+  let h='';
+  if(p.email)h+=`<div class="flex items-center gap-3"><i class="fa-solid fa-envelope" style="color:var(--pri)"></i><span style="color:var(--txt2)">${esc(p.email)}</span></div>`;
+  if(p.location)h+=`<div class="flex items-center gap-3"><i class="fa-solid fa-location-dot" style="color:var(--pri)"></i><span style="color:var(--txt2)">${esc(p.location)}</span></div>`;
+  if(p.github)h+=`<div class="flex items-center gap-3"><i class="fa-brands fa-github" style="color:var(--pri)"></i><a href="${p.github}" target="_blank" style="color:var(--txt2);text-decoration:none">GitHub</a></div>`;
+  document.getElementById('contactI').innerHTML=h;
+}
+
+function renderFooter(){
+  const p=cfg.personal;
+  document.getElementById('footerT').innerHTML=`&copy; ${new Date().getFullYear()} ${esc(p.name)}. All rights reserved.`;
+  let h='';
+  if(p.github)h+=`<a href="${p.github}" target="_blank" style="color:var(--txt3);transition:color .3s" onmouseover="this.style.color='var(--pri)'" onmouseout="this.style.color='var(--txt3)'"><i class="fa-brands fa-github"></i></a>`;
+  if(p.twitter)h+=`<a href="${p.twitter}" target="_blank" style="color:var(--txt3);transition:color .3s" onmouseover="this.style.color='var(--pri)'" onmouseout="this.style.color='var(--txt3)'"><i class="fa-brands fa-twitter"></i></a>`;
+  if(p.linkedin)h+=`<a href="${p.linkedin}" target="_blank" style="color:var(--txt3);transition:color .3s" onmouseover="this.style.color='var(--pri)'" onmouseout="this.style.color='var(--txt3)'"><i class="fa-brands fa-linkedin-in"></i></a>`;
+  document.getElementById('footerS').innerHTML=h;
+}
+
+// ============================================================
+//   登录
+// ============================================================
+document.getElementById('adminTrigger').addEventListener('click',()=>{
+  if(unlocked){openAdmin();return}
+  document.getElementById('loginPwd').value='';
+  document.getElementById('loginPwd').type='password';
+  const icon=document.querySelector('#loginOv .pwd-toggle i');if(icon)icon.className='fa-solid fa-eye';
+  document.getElementById('loginOv').classList.add('open');
+  setTimeout(()=>document.getElementById('loginPwd').focus(),100);
+});
+function tryLogin(){
+  const pwd=document.getElementById('loginPwd').value;
+  if(hash(pwd)===getPwdH()){unlocked=true;document.getElementById('loginOv').classList.remove('open');openAdmin()}
+  else{toast('密码错误','err');document.getElementById('loginPwd').value='';document.getElementById('loginPwd').focus()}
+}
+document.getElementById('loginPwd').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin()});
+function closeLogin(){document.getElementById('loginOv').classList.remove('open')}
+
+function openAdmin(){document.getElementById('adminOv').classList.add('open');document.body.style.overflow='hidden';renderATab(curTab)}
+function closeAdmin(){document.getElementById('adminOv').classList.remove('open');document.body.style.overflow=''}
+document.getElementById('adminOv').addEventListener('click',e=>{if(e.target===document.getElementById('adminOv'))closeAdmin()});
+
+// ============================================================
+//   管理面板
+// ============================================================
+let curTab='personal';
+document.querySelectorAll('.admin-tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');curTab=t.dataset.tab;renderATab(curTab)})});
+
+function renderATab(tab){
+  const b=document.getElementById('adminBody');
+  switch(tab){
+    case 'personal':rPersonal(b);break;case 'projects':rProjects(b);break;
+    case 'skills':rSkills(b);break;case 'experience':rExp(b);break;case 'data':rData(b);break;
+  }
+}
+
+// --- 个人信息 ---
+function rPersonal(b){
+  const p=cfg.personal;
+  b.innerHTML=`
+    <div class="af"><label>姓名</label><input id="ap_name" value="${esc(p.name)}"></div>
+    <div class="af"><label>Logo 文字</label><input id="ap_logo" value="${esc(p.logo)}"></div>
+    <div class="af"><label>头衔（每行一个）</label><textarea id="ap_titles" rows="4">${p.titles.join('\n')}</textarea></div>
+    <div class="af"><label>一句话简介</label><input id="ap_bio" value="${esc(p.bio)}"></div>
+    <div class="af"><label>关于我 - 第一段</label><textarea id="ap_a1" rows="3">${esc(p.aboutText1)}</textarea></div>
+    <div class="af"><label>关于我 - 第二段</label><textarea id="ap_a2" rows="3">${esc(p.aboutText2)}</textarea></div>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="af"><label>所在地</label><input id="ap_loc" value="${esc(p.location)}"></div>
+      <div class="af"><label>邮箱</label><input id="ap_em" type="email" value="${esc(p.email)}"></div>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="af"><label>GitHub</label><input id="ap_gh" value="${esc(p.github)}"></div>
+      <div class="af"><label>Twitter</label><input id="ap_tw" value="${esc(p.twitter)}"></div>
+    </div>
+    <div class="af"><label>LinkedIn</label><input id="ap_li" value="${esc(p.linkedin)}"></div>
+    <h4 class="font-semibold mb-3 mt-4" style="color:var(--pri);font-family:'Space Grotesk'">统计数字</h4>
+    <div id="stList">${(p.stats||[]).map((s,i)=>`
+      <div class="a-item">
+        <div class="flex gap-3 flex-1" style="min-width:0">
+          <input class="st-v" data-i="${i}" value="${esc(s.value)}" placeholder="数值" style="width:80px;padding:6px 10px;background:var(--bg);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-size:.85rem;text-align:center">
+          <input class="st-l" data-i="${i}" value="${esc(s.label)}" placeholder="标签" style="flex:1;padding:6px 10px;background:var(--bg);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-size:.85rem">
+        </div>
+        <button class="btn-o btn-sm btn-danger" style="padding:4px 8px" onclick="delStat(${i})"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    `).join('')}</div>
+    <button class="btn-o btn-sm mb-6" onclick="addStat()"><i class="fa-solid fa-plus"></i> 添加统计</button><br>
+    <button class="btn-p" onclick="savePers()"><i class="fa-solid fa-check"></i> 保存个人信息</button>
+  `;
+}
+function addStat(){cfg.personal.stats.push({id:gid(),label:'新统计',value:'0'});saveCfg();renderATab('personal')}
+function delStat(i){cfg.personal.stats.splice(i,1);saveCfg();renderAll();renderATab('personal')}
+function savePers(){
+  const p=cfg.personal;
+  p.name=document.getElementById('ap_name').value.trim()||p.name;
+  p.logo=document.getElementById('ap_logo').value.trim()||p.logo;
+  p.titles=document.getElementById('ap_titles').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  p.bio=document.getElementById('ap_bio').value.trim();
+  p.aboutText1=document.getElementById('ap_a1').value.trim();
+  p.aboutText2=document.getElementById('ap_a2').value.trim();
+  p.location=document.getElementById('ap_loc').value.trim();
+  p.email=document.getElementById('ap_em').value.trim();
+  p.github=document.getElementById('ap_gh').value.trim();
+  p.twitter=document.getElementById('ap_tw').value.trim();
+  p.linkedin=document.getElementById('ap_li').value.trim();
+  document.querySelectorAll('.st-v').forEach(inp=>{const i=+inp.dataset.i;if(p.stats[i])p.stats[i].value=inp.value.trim()});
+  document.querySelectorAll('.st-l').forEach(inp=>{const i=+inp.dataset.i;if(p.stats[i])p.stats[i].label=inp.value.trim()});
+  saveCfg();renderAll();startTyping();toast('个人信息已保存');
+}
+
+// --- 作品管理 ---
+let editPI=-1;
+function rProjects(b){
+  const sorted=[...cfg.projects].sort((a,b)=>(b.star||0)-(a.star||0));
+  let h=`<div class="flex items-center justify-between mb-4"><span style="color:var(--txt2)">共 ${cfg.projects.length} 个作品（按星级排序）</span><button class="btn-p btn-sm" onclick="editProj(-1)"><i class="fa-solid fa-plus"></i> 添加作品</button></div>`;
+  h+=sorted.map(p=>{
+    const ri=cfg.projects.findIndex(x=>x.id===p.id);
+    return `<div class="a-item"><div class="flex items-center gap-3" style="min-width:0;flex:1"><img src="${p.image}" style="width:48px;height:36px;border-radius:6px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'"><div style="min-width:0"><div class="font-medium text-sm truncate">${esc(p.title)} ${starsH(p.star||0)}</div><div class="text-xs truncate" style="color:var(--txt3)">${p.tags.join(', ')}</div></div></div><div class="a-item-act"><button class="btn-o btn-sm" onclick="editProj(${ri})"><i class="fa-solid fa-pen"></i></button><button class="btn-o btn-sm btn-danger" onclick="delProj(${ri})"><i class="fa-solid fa-trash"></i></button></div></div>`;
+  }).join('');
+  h+=`<div id="pfC"></div>`;
+  b.innerHTML=h;
+}
+
+function editProj(idx){
+  editPI=idx;
+  const p=idx>=0?cfg.projects[idx]:{id:Date.now(),title:'',description:'',tags:[],image:'',link:'',github:'',star:3,showPreview:true,showSource:true,showDetail:true};
+  const c=document.getElementById('pfC');
+  c.innerHTML=`
+    <div class="card-b p-5 mt-4" style="border-color:var(--bdr-h)">
+      <h4 class="font-semibold mb-4" style="font-family:'Space Grotesk'">${idx>=0?'编辑':'添加'}作品</h4>
+      <div class="af"><label>标题</label><input id="pf_t" value="${esc(p.title)}"></div>
+      <div class="af"><label>描述</label><textarea id="pf_d" rows="4">${esc(p.description)}</textarea></div>
+      <div class="af"><label>标签（逗号分隔）</label><input id="pf_tg" value="${p.tags.join(', ')}"></div>
+      <div class="af">
+        <label>封面图片</label>
+        <div class="flex gap-2 items-center flex-wrap">
+          <input id="pf_img" value="${esc(p.image)}" placeholder="输入图片URL" style="flex:1;padding:10px 14px;background:var(--bg);border:1px solid var(--bdr);border-radius:10px;color:var(--txt);font-size:.9rem">
+          <button class="btn-o btn-sm" onclick="document.getElementById('pf_file').click()"><i class="fa-solid fa-upload"></i> 上传</button>
+          <input type="file" id="pf_file" accept="image/*" style="display:none" onchange="handleUpload(this)">
+        </div>
+        <div id="pf_iprev">${p.image&&p.image.startsWith('data:')?`<img src="${p.image}" class="img-prev" alt="预览">`:''}</div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="af"><label>预览链接</label><input id="pf_lk" value="${esc(p.link)}"></div>
+        <div class="af"><label>GitHub 链接</label><input id="pf_gh" value="${esc(p.github)}"></div>
+      </div>
+      <div class="af">
+        <label>星级（点击设置，越高越靠前）</label>
+        <div class="star-pick" id="sPick">${[1,2,3,4,5].map(i=>`<i class="fa-${i<=p.star?'solid':'regular'} fa-star ${i<=p.star?'on':''}" onclick="pickS(${i})"></i>`).join('')}</div>
+        <input type="hidden" id="pf_star" value="${p.star}">
+      </div>
+      <div class="af">
+        <label>首页显示控制</label>
+        <div class="flex flex-col gap-3 mt-1">
+          <div class="flex items-center justify-between" style="padding:8px 12px;background:var(--bg);border-radius:8px">
+            <span class="text-sm">显示「预览」按钮</span>
+            <label class="sw"><input type="checkbox" id="pf_sp" ${p.showPreview!==false?'checked':''}><span class="sl"></span></label>
+          </div>
+          <div class="flex items-center justify-between" style="padding:8px 12px;background:var(--bg);border-radius:8px">
+            <span class="text-sm">显示「源码」按钮</span>
+            <label class="sw"><input type="checkbox" id="pf_ss" ${p.showSource!==false?'checked':''}><span class="sl"></span></label>
+          </div>
+          <div class="flex items-center justify-between" style="padding:8px 12px;background:var(--bg);border-radius:8px">
+            <span class="text-sm">显示「详情」按钮</span>
+            <label class="sw"><input type="checkbox" id="pf_sd" ${p.showDetail!==false?'checked':''}><span class="sl"></span></label>
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button class="btn-p btn-sm" onclick="saveProj()"><i class="fa-solid fa-check"></i> 保存</button>
+        <button class="btn-o btn-sm" onclick="document.getElementById('pfC').innerHTML=''">取消</button>
+      </div>
+    </div>`;
+  c.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function pickS(n){
+  document.getElementById('pf_star').value=n;
+  document.querySelectorAll('#sPick i').forEach((el,i)=>{
+    el.className=`fa-${i<n?'solid':'regular'} fa-star${i<n?' on':''}`;
+  });
+}
+
+async function handleUpload(inp){
+  const file=inp.files[0];if(!file)return;
+  try{
+    const b64=await resizeImg(file,800);
+    document.getElementById('pf_img').value=b64;
+    document.getElementById('pf_iprev').innerHTML=`<img src="${b64}" class="img-prev" alt="预览">`;
+    toast('图片已上传');
+  }catch(e){toast('图片处理失败','err')}
+  inp.value='';
+}
+
+function resizeImg(file,maxW=800){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();r.onerror=rej;
+    r.onload=e=>{const img=new Image();img.onerror=rej;img.onload=()=>{
+      const cv=document.createElement('canvas');let w=img.width,h=img.height;
+      if(w>maxW){h=Math.round(maxW/w*h);w=maxW}
+      cv.width=w;cv.height=h;cv.getContext('2d').drawImage(img,0,0,w,h);
+      res(cv.toDataURL('image/jpeg',0.75));
+    };img.src=e.target.result};
+    r.readAsDataURL(file);
+  });
+}
+
+function saveProj(){
+  const d={
+    id:editPI>=0?cfg.projects[editPI].id:Date.now(),
+    title:document.getElementById('pf_t').value.trim(),
+    description:document.getElementById('pf_d').value.trim(),
+    tags:document.getElementById('pf_tg').value.split(',').map(s=>s.trim()).filter(Boolean),
+    image:document.getElementById('pf_img').value.trim()||`https://picsum.photos/seed/p${Date.now()}/600/400.jpg`,
+    link:document.getElementById('pf_lk').value.trim(),
+    github:document.getElementById('pf_gh').value.trim(),
+    star:parseInt(document.getElementById('pf_star').value)||3,
+    showPreview:document.getElementById('pf_sp').checked,
+    showSource:document.getElementById('pf_ss').checked,
+    showDetail:document.getElementById('pf_sd').checked
+  };
+  if(!d.title){toast('请填写标题','err');return}
+  if(editPI>=0)cfg.projects[editPI]=d;else cfg.projects.push(d);
+  saveCfg();renderAll();renderATab('projects');toast(editPI>=0?'作品已更新':'作品已添加');
+}
+
+async function delProj(i){
+  const ok=await cfm(`确定删除「${cfg.projects[i].title}」？`);
+  if(ok){cfg.projects.splice(i,1);saveCfg();renderAll();renderATab('projects');toast('作品已删除')}
+}
+
+// --- 技能管理 ---
+function rSkills(b){
+  let h=`<div class="flex items-center justify-between mb-4"><span style="color:var(--txt2)">共 ${cfg.skills.length} 个分类</span><button class="btn-p btn-sm" onclick="addSC()"><i class="fa-solid fa-plus"></i> 添加分类</button></div>`;
+  cfg.skills.forEach((g,gi)=>{
+    h+=`<div class="card-b p-4 mb-4"><div class="flex items-center justify-between mb-3">
+      <input class="sc-n" data-g="${gi}" value="${esc(g.category)}" style="background:transparent;border:none;color:var(--pri);font-weight:600;font-size:1rem;font-family:'Space Grotesk';width:200px">
+      <div class="flex gap-2"><button class="btn-o btn-sm" onclick="addSI(${gi})"><i class="fa-solid fa-plus"></i> 添加技能</button><button class="btn-o btn-sm btn-danger" onclick="delSC(${gi})"><i class="fa-solid fa-trash"></i></button></div>
+    </div>`;
+    g.items.forEach((s,si)=>{
+      h+=`<div class="flex items-center gap-3 mb-2">
+        <input class="si-n" data-g="${gi}" data-s="${si}" value="${esc(s.name)}" style="flex:1;padding:6px 10px;background:var(--bg);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-size:.85rem">
+        <input class="si-l" data-g="${gi}" data-s="${si}" type="number" min="0" max="100" value="${s.level}" style="width:70px;padding:6px 10px;background:var(--bg);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-size:.85rem;text-align:center">
+        <button class="btn-o btn-sm btn-danger" style="padding:4px 8px" onclick="delSI(${gi},${si})"><i class="fa-solid fa-xmark"></i></button>
+      </div>`;
+    });
+    h+=`</div>`;
+  });
+  h+=`<button class="btn-p" onclick="saveSk()"><i class="fa-solid fa-check"></i> 保存技能</button>`;
+  b.innerHTML=h;
+}
+function addSC(){cfg.skills.push({category:'新分类',items:[]});saveCfg();renderATab('skills')}
+function addSI(g){cfg.skills[g].items.push({name:'新技能',level:50});saveCfg();renderATab('skills')}
+function delSI(g,s){cfg.skills[g].items.splice(s,1);saveCfg();renderATab('skills')}
+async function delSC(g){const ok=await cfm(`确定删除分类「${cfg.skills[g].category}」？`);if(ok){cfg.skills.splice(g,1);saveCfg();renderAll();renderATab('skills');toast('分类已删除')}}
+function saveSk(){
+  document.querySelectorAll('.sc-n').forEach(i=>{cfg.skills[+i.dataset.g].category=i.value.trim()||'未命名'});
+  document.querySelectorAll('.si-n').forEach(i=>{cfg.skills[+i.dataset.g].items[+i.dataset.s].name=i.value.trim()||'未命名'});
+  document.querySelectorAll('.si-l').forEach(i=>{cfg.skills[+i.dataset.g].items[+i.dataset.s].level=Math.min(100,Math.max(0,+i.value||0))});
+  saveCfg();renderAll();toast('技能已保存');
+}
+
+// --- 经历管理 ---
+let editEI=-1;
+function rExp(b){
+  let h=`<div class="flex items-center justify-between mb-4"><span style="color:var(--txt2)">共 ${cfg.experiences.length} 段经历</span><button class="btn-p btn-sm" onclick="editE(-1)"><i class="fa-solid fa-plus"></i> 添加经历</button></div>`;
+  h+=cfg.experiences.map((e,i)=>`<div class="a-item"><div style="min-width:0;flex:1"><div class="font-medium text-sm">${esc(e.role)}</div><div class="text-xs" style="color:var(--txt3)">${esc(e.company)} · ${esc(e.period)}</div></div><div class="a-item-act"><button class="btn-o btn-sm" onclick="editE(${i})"><i class="fa-solid fa-pen"></i></button><button class="btn-o btn-sm btn-danger" onclick="delE(${i})"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
+  h+=`<div id="efC"></div>`;b.innerHTML=h;
+}
+function editE(idx){
+  editEI=idx;const e=idx>=0?cfg.experiences[idx]:{company:'',role:'',period:'',description:''};
+  document.getElementById('efC').innerHTML=`
+    <div class="card-b p-5 mt-4" style="border-color:var(--bdr-h)">
+      <h4 class="font-semibold mb-4" style="font-family:'Space Grotesk'">${idx>=0?'编辑':'添加'}经历</h4>
+      <div class="grid grid-cols-2 gap-4"><div class="af"><label>公司</label><input id="ef_c" value="${esc(e.company)}"></div><div class="af"><label>职位</label><input id="ef_r" value="${esc(e.role)}"></div></div>
+      <div class="af"><label>时间段</label><input id="ef_p" value="${esc(e.period)}" placeholder="如：2022 - 至今"></div>
+      <div class="af"><label>描述</label><textarea id="ef_d" rows="3">${esc(e.description)}</textarea></div>
+      <div class="flex gap-3"><button class="btn-p btn-sm" onclick="saveE()"><i class="fa-solid fa-check"></i> 保存</button><button class="btn-o btn-sm" onclick="document.getElementById('efC').innerHTML=''">取消</button></div>
+    </div>`;
+}
+function saveE(){
+  const d={company:document.getElementById('ef_c').value.trim(),role:document.getElementById('ef_r').value.trim(),period:document.getElementById('ef_p').value.trim(),description:document.getElementById('ef_d').value.trim()};
+  if(!d.company||!d.role){toast('请填写公司和职位','err');return}
+  if(editEI>=0)cfg.experiences[editEI]=d;else cfg.experiences.push(d);
+  saveCfg();renderAll();renderATab('experience');toast(editEI>=0?'经历已更新':'经历已添加');
+}
+async function delE(i){const ok=await cfm(`确定删除「${cfg.experiences[i].company}」？`);if(ok){cfg.experiences.splice(i,1);saveCfg();renderAll();renderATab('experience');toast('经历已删除')}}
+
+// --- 数据管理 ---
+function rData(b){
+  b.innerHTML=`
+    <div class="space-y-6">
+      <div class="card-b p-5">
+        <h4 class="font-semibold mb-3" style="font-family:'Space Grotesk'">修改密码</h4>
+        <div class="af"><label>当前密码</label><div class="pwd-wrap"><input type="password" id="pw_o" placeholder="输入当前密码" class="c-input" style="padding-right:44px"><button class="pwd-toggle" onclick="togglePwdVis('pw_o',this)" aria-label="显示密码"><i class="fa-solid fa-eye"></i></button></div></div>
+        <div class="af"><label>新密码</label><div class="pwd-wrap"><input type="password" id="pw_n" placeholder="输入新密码" class="c-input" style="padding-right:44px"><button class="pwd-toggle" onclick="togglePwdVis('pw_n',this)" aria-label="显示密码"><i class="fa-solid fa-eye"></i></button></div></div>
+        <div class="af"><label>确认新密码</label><div class="pwd-wrap"><input type="password" id="pw_c" placeholder="再次输入新密码" class="c-input" style="padding-right:44px"><button class="pwd-toggle" onclick="togglePwdVis('pw_c',this)" aria-label="显示密码"><i class="fa-solid fa-eye"></i></button></div></div>
+        <button class="btn-p btn-sm" onclick="changePwd()"><i class="fa-solid fa-key"></i> 修改密码</button>
+      </div>
+      <div class="card-b p-5">
+        <h4 class="font-semibold mb-3" style="font-family:'Space Grotesk'">导出数据</h4>
+        <p class="text-sm mb-4" style="color:var(--txt2)">将当前所有配置导出为 JSON 文件。</p>
+        <button class="btn-p btn-sm" onclick="expData()"><i class="fa-solid fa-download"></i> 导出 JSON</button>
+      </div>
+      <div class="card-b p-5">
+        <h4 class="font-semibold mb-3" style="font-family:'Space Grotesk'">导入数据</h4>
+        <p class="text-sm mb-4" style="color:var(--txt2)">从 JSON 文件导入配置，将覆盖当前所有内容。</p>
+        <input type="file" id="impF" accept=".json" style="display:none" onchange="impData(event)">
+        <button class="btn-o btn-sm" onclick="document.getElementById('impF').click()"><i class="fa-solid fa-upload"></i> 选择文件导入</button>
+      </div>
+      <div class="card-b p-5" style="border-color:rgba(255,60,60,0.18)">
+        <h4 class="font-semibold mb-3" style="color:#ff5555;font-family:'Space Grotesk'">重置数据</h4>
+        <p class="text-sm mb-4" style="color:var(--txt2)">恢复为代码中的默认配置。</p>
+        <button class="btn-o btn-sm btn-danger" onclick="resetData()"><i class="fa-solid fa-rotate-left"></i> 重置为默认</button>
+      </div>
+      <div class="card-b p-5">
+        <h4 class="font-semibold mb-3" style="font-family:'Space Grotesk'">部署说明</h4>
+        <div class="text-sm leading-relaxed" style="color:var(--txt2)">
+          <p class="mb-2">本站为纯静态单文件，部署非常简单：</p>
+          <p class="mb-1"><strong style="color:var(--txt)">方式一：直接上传</strong> — 放到 Web 服务器静态目录</p>
+          <p class="mb-1"><strong style="color:var(--txt)">方式二：GitHub Pages</strong> — 推送 index.html，Settings → Pages 发布</p>
+          <p class="mb-1"><strong style="color:var(--txt)">方式三：Vercel / Netlify</strong> — 连接仓库自动部署</p>
+          <p class="mb-1"><strong style="color:var(--txt)">方式四：Docker</strong> — nginx:alpine 镜像即可</p>
+          <p class="mt-3" style="color:var(--pri)"><em>修改代码 DEFAULT_CONFIG 可永久变更默认内容；上传图片以 Base64 存储。</em></p>
+        </div>
+      </div>
+    </div>`;
+}
+
+function changePwd(){
+  const o=document.getElementById('pw_o').value,n=document.getElementById('pw_n').value,c=document.getElementById('pw_c').value;
+  if(!o||!n||!c){toast('请填写所有字段','err');return}
+  if(hash(o)!==getPwdH()){toast('当前密码错误','err');return}
+  if(n.length<3){toast('新密码至少3位','err');return}
+  if(n!==c){toast('两次输入的新密码不一致','err');return}
+  setPwd(n);toast('密码已修改');document.getElementById('pw_o').value='';document.getElementById('pw_n').value='';document.getElementById('pw_c').value='';
+}
+function expData(){const bl=new Blob([JSON.stringify(cfg,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=`portfolio-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);toast('数据已导出')}
+function impData(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=async e=>{try{const d=JSON.parse(e.target.result);const ok=await cfm('导入将覆盖当前所有数据，确定？');if(ok){cfg=migrate(d);saveCfg();renderAll();startTyping();renderATab('data');toast('数据已导入')}}catch{toast('文件格式错误','err')}};r.readAsText(f);ev.target.value=''}
+async function resetData(){const ok=await cfm('确定重置为默认配置？所有在线修改将丢失。');if(ok){localStorage.removeItem(SK);cfg=JSON.parse(JSON.stringify(DEF_CFG));saveCfg();renderAll();startTyping();renderATab('data');toast('已重置为默认配置')}}
+
+// ============================================================
+//   打字效果
+// ============================================================
+let tTimer=null;
+function startTyping(){
+  if(tTimer)clearTimeout(tTimer);
+  const el=document.getElementById('typingText');if(!el)return;
+  const ts=cfg.personal.titles;if(!ts.length)return;
+  let ti=0,ci=0,del=false;
+  function tick(){
+    const cur=ts[ti];
+    if(!del){el.textContent=cur.slice(0,ci+1);ci++;if(ci>=cur.length){del=true;tTimer=setTimeout(tick,2000);return}tTimer=setTimeout(tick,80)}
+    else{el.textContent=cur.slice(0,ci-1);ci--;if(ci<=0){del=false;ti=(ti+1)%ts.length;tTimer=setTimeout(tick,400);return}tTimer=setTimeout(tick,40)}
+  }
+  tick();
+}
+
+// ============================================================
+//   简约背景 — 流动光斑 + 微粒子
+// ============================================================
+function initBg(){
+  const cv=document.getElementById('heroCanvas');
+  const ctx=cv.getContext('2d');
+  let w,h,mx=0.5,my=0.5;
+
+  function resize(){
+    const r=cv.getBoundingClientRect();
+    w=cv.width=r.width;h=cv.height=r.height;
+  }
+  resize();window.addEventListener('resize',resize);
+
+  // 光斑 — 大尺寸、低透明度、缓慢漂移的径向渐变
+  const blobs=[
+    {x:0.3,y:0.4,r:0.35,vx:0.00012,vy:0.00008,color:[0,229,160],op:0.06},
+    {x:0.7,y:0.6,r:0.30,vx:-0.00010,vy:0.00006,color:[0,180,220],op:0.05},
+    {x:0.5,y:0.3,r:0.28,vx:0.00008,vy:-0.00010,color:[60,255,200],op:0.04},
+    {x:0.2,y:0.7,r:0.25,vx:-0.00006,vy:0.00009,color:[0,200,170],op:0.035},
+  ];
+
+  // 微粒子
+  const pts=[];
+  for(let i=0;i<100;i++){
+    pts.push({x:Math.random(),y:Math.random(),r:Math.random()*1.2+0.3,vx:(Math.random()-0.5)*0.0002,vy:(Math.random()-0.5)*0.0002,a:Math.random()*0.4+0.15,ph:Math.random()*Math.PI*2});
+  }
+
+  function draw(now){
+    ctx.clearRect(0,0,w,h);
+
+    // 绘制光斑
+    blobs.forEach(b=>{
+      b.x+=b.vx;b.y+=b.vy;
+      // 边界反弹
+      if(b.x<0.1||b.x>0.9)b.vx*=-1;
+      if(b.y<0.1||b.y>0.9)b.vy*=-1;
+      // 鼠标微弱影响
+      b.x+=(mx-0.5)*0.00003;
+      b.y+=(my-0.5)*0.00003;
+
+      const cx=b.x*w,cy=b.y*h;
+      const rad=Math.max(1,b.r*Math.min(w,h));
+      const grd=ctx.createRadialGradient(cx,cy,0,cx,cy,rad);
+      grd.addColorStop(0,`rgba(${b.color[0]},${b.color[1]},${b.color[2]},${b.op})`);
+      grd.addColorStop(0.5,`rgba(${b.color[0]},${b.color[1]},${b.color[2]},${b.op*0.4})`);
+      grd.addColorStop(1,`rgba(${b.color[0]},${b.color[1]},${b.color[2]},0)`);
+      ctx.fillStyle=grd;
+      ctx.fillRect(cx-rad,cy-rad,rad*2,rad*2);
+    });
+
+    // 绘制微粒子
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.ph+=0.012;
+      if(p.x<0)p.x=1;if(p.x>1)p.x=0;if(p.y<0)p.y=1;if(p.y>1)p.y=0;
+      const a=p.a*(0.5+0.5*Math.sin(p.ph));
+      const px=p.x*w,py=p.y*h;
+
+      // 柔和光晕
+      const g2=ctx.createRadialGradient(px,py,0,px,py,Math.max(0.1,p.r*5));
+      g2.addColorStop(0,`rgba(0,229,160,${a*0.5})`);
+      g2.addColorStop(1,`rgba(0,229,160,0)`);
+      ctx.fillStyle=g2;
+      ctx.fillRect(px-p.r*5,py-p.r*5,p.r*10,p.r*10);
+
+      ctx.beginPath();ctx.arc(px,py,Math.max(0.1,p.r),0,Math.PI*2);
+      ctx.fillStyle=`rgba(200,255,240,${a})`;ctx.fill();
+    });
+
+    // 极少量连线
+    for(let i=0;i<pts.length;i++){
+      for(let j=i+1;j<pts.length;j++){
+        const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<0.15){
+          ctx.beginPath();ctx.moveTo(pts[i].x*w,pts[i].y*h);ctx.lineTo(pts[j].x*w,pts[j].y*h);
+          ctx.strokeStyle=`rgba(0,229,160,${0.05*(1-d/0.15)})`;ctx.lineWidth=0.5;ctx.stroke();
+        }
+      }
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  cv.addEventListener('mousemove',e=>{const r=cv.getBoundingClientRect();mx=(e.clientX-r.left)/r.width;my=(e.clientY-r.top)/r.height});
+  cv.addEventListener('mouseleave',()=>{mx=0.5;my=0.5});
+  requestAnimationFrame(draw);
+}
+
+// ============================================================
+//   鼠标光效
+// ============================================================
+function initCursor(){const g=document.getElementById('cursorGlow');document.addEventListener('mousemove',e=>{g.style.left=e.clientX+'px';g.style.top=e.clientY+'px'})}
+
+// ============================================================
+//   滚动动画
+// ============================================================
+function initReveal(){
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(en=>{if(en.isIntersecting){en.target.classList.add('visible');en.target.querySelectorAll('.skill-fill').forEach(b=>{setTimeout(()=>b.classList.add('anim'),200)})}})
+  },{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+}
+
+// ============================================================
+//   导航高亮
+// ============================================================
+function initNav(){
+  const ids=['about','projects','skills','experience','contact'];
+  const lks=document.querySelectorAll('#deskNav .nav-link');
+  const obs=new IntersectionObserver(entries=>{entries.forEach(en=>{if(en.isIntersecting)lks.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+en.target.id))})},{threshold:0.3});
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)obs.observe(el)});
+}
+
+// ============================================================
+//   移动端菜单
+// ============================================================
+function closeMM(){document.getElementById('mobMenu').classList.remove('open')}
+document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('mobMenu').classList.toggle('open'));
+
+// ============================================================
+//   联系表单
+// ============================================================
+document.getElementById('cForm').addEventListener('submit',function(e){e.preventDefault();let v=true;this.querySelectorAll('input,textarea').forEach(i=>{if(!i.value.trim())v=false});if(v){toast('消息已发送，感谢你的联系！');this.reset()}else toast('请填写所有字段','err')});
+
+// ============================================================
+//   键盘
+// ============================================================
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeAdmin();closeMM();closeDetail();closeLogin()}});
+
+// ============================================================
+//   初始化
+// ============================================================
+document.addEventListener('DOMContentLoaded',()=>{
+  renderAll();startTyping();initBg();initCursor();initReveal();initNav();
+});
+</script>
+</body>
+</html>
