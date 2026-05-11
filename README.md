@@ -24,7 +24,7 @@
 
 ### 方式一：直接打开
 
-直接在浏览器中打开 `个人作品3.html` 即可预览。
+直接在浏览器中打开 `index.html` 即可预览。
 
 ### 方式二：本地服务器
 
@@ -42,7 +42,7 @@ npx serve .
 
 ```dockerfile
 FROM nginx:alpine
-COPY 个人作品3.html /usr/share/nginx/html/index.html
+COPY index.html /usr/share/nginx/html/index.html
 ```
 
 ```bash
@@ -52,7 +52,7 @@ docker run -d -p 8080:80 portfolio
 
 ### 方式四：GitHub Pages
 
-1. 将 `个人作品3.html` 重命名为 `index.html` 并推送到仓库
+1. 将 `index.html` 重命名为 `index.html` 并推送到仓库
 2. Settings → Pages → 选择分支 → 保存
 
 ### 方式五：Vercel / Netlify
@@ -82,7 +82,7 @@ docker run -d -p 8080:80 portfolio
 
 ```
 portfolio-website/
-├── 个人作品3.html    # 主文件（包含 HTML/CSS/JS 全部代码）
+├── index.html    # 主文件（包含 HTML/CSS/JS 全部代码）
 └── README.md
 ```
 
