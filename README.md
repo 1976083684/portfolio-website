@@ -15,6 +15,8 @@
 
 
 基于 Node.js 后端的个人作品集网站，内置可视化管理面板，数据持久化到服务端 JSON 文件。
+预览地址：[https://curious-sunburst-3dc7ea.netlify.app](https://curious-sunburst-3dc7ea.netlify.app)
+
 
 ![个人作品集](images/README_images/个人作品集.png)
 
