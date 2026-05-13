@@ -79,7 +79,10 @@ npm run dev
 4. 如需后台运行，可使用 [pm2](https://pm2.keymetrics.io/)：
    ```cmd
    npm install -g pm2
+   :: 默认端口 3000
    pm2 start server.js --name portfolio
+   :: 指定端口（如 8080）
+   set PORT=8080 && pm2 start server.js --name portfolio
    pm2 save
    pm2 startup
    ```
@@ -103,7 +106,10 @@ npm install
 
 # 方式二：使用 pm2 后台运行
 npm install -g pm2
+# 默认端口 3000
 pm2 start server.js --name portfolio
+# 指定端口（如 8080）
+PORT=8080 pm2 start server.js --name portfolio
 pm2 save
 pm2 startup
 ```
