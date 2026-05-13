@@ -286,11 +286,21 @@ function hash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i
 //   配置管理
 // ============================================================
 function loadCfg(){
-  try{const s=localStorage.getItem(SK);if(s){return migrate(deepMerge(JSON.parse(JSON.stringify(DEF_CFG)),JSON.parse(s)))}}catch(e){}
   if(typeof PORTFOLIO_DATA!=='undefined'){return migrate(deepMerge(JSON.parse(JSON.stringify(DEF_CFG)),PORTFOLIO_DATA))}
+  try{const s=localStorage.getItem(SK);if(s){return migrate(deepMerge(JSON.parse(JSON.stringify(DEF_CFG)),JSON.parse(s)))}}catch(e){}
   return JSON.parse(JSON.stringify(DEF_CFG));
 }
-function saveCfg(){try{localStorage.setItem(SK,JSON.stringify(cfg))}catch(e){toast('保存失败','err')}}
+function saveCfg(){try{localStorage.setItem(SK,JSON.stringify(cfg))}catch(e){toast('保存失败','err')}autoExportFile()}
+let _fh=null;
+async function autoExportFile(){
+  if(typeof showSaveFilePicker!=='function')return;
+  const js='var PORTFOLIO_DATA='+JSON.stringify(cfg,null,2)+';\n';
+  const bl=new Blob([js],{type:'application/javascript'});
+  try{
+    if(!_fh){_fh=await showSaveFilePicker({suggestedName:'portfolio_data.js',types:[{description:'JavaScript',accept:{'application/javascript':['.js']}}]})}
+    const w=await _fh.createWritable();await w.write(bl);await w.close();
+  }catch(e){if(e.name==='AbortError'){_fh=null}else{_fh=null;const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='portfolio_data.js';a.click();URL.revokeObjectURL(a.href)}}
+}
 function deepMerge(t,s){for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){if(!t[k]||typeof t[k]!=='object')t[k]={};deepMerge(t[k],s[k])}else t[k]=s[k]}return t}
 function migrate(c){
   if(c.personal.stats&&!Array.isArray(c.personal.stats)){const o=c.personal.stats;c.personal.stats=[];if(o.years)c.personal.stats.push({id:gid(),label:'年开发经验',value:o.years});if(o.projects)c.personal.stats.push({id:gid(),label:'完成项目',value:o.projects});if(o.clients)c.personal.stats.push({id:gid(),label:'合作客户',value:o.clients});if(o.stars)c.personal.stats.push({id:gid(),label:'GitHub Stars',value:o.stars})}
