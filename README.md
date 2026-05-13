@@ -1,6 +1,20 @@
 # Portfolio Website
 
+[![HTML5](https://img.shields.io/badge/HTML5-%23E34F26?style=flat&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
+[![CSS3](https://img.shields.io/badge/CSS3-%231572B6?style=flat&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v3-06B6D4?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Font Awesome](https://img.shields.io/badge/Font%20Awesome-v6-528DD7?style=flat&logo=font-awesome&logoColor=white)](https://fontawesome.com/)
+[![Google Fonts](https://img.shields.io/badge/Google%20Fonts-Available-4285F4?style=flat&logo=google&logoColor=white)](https://fonts.google.com/)
+[![License](https://img.shields.io/badge/License-MIT-000000?style=flat&logo=github&logoColor=white)](https://github.com/1976083684/portfolio-website)
+
+
+
+
+
 纯静态单文件个人作品集网站，内置可视化管理面板，无需数据库、无需后端。
+
+![个人作品集](images/README_images/个人作品集.png)
 
 ## 特性
 
