@@ -237,6 +237,7 @@
     </div>
   </div>
 
+<script src="./data/portfolio_data.js"></script>
 <script>
 // ============================================================
 //   默认配置
@@ -285,6 +286,7 @@ function hash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i
 //   配置管理
 // ============================================================
 function loadCfg(){
+  if(typeof PORTFOLIO_DATA!=='undefined'){return migrate(deepMerge(JSON.parse(JSON.stringify(DEF_CFG)),PORTFOLIO_DATA))}
   try{const s=localStorage.getItem(SK);if(s){return migrate(deepMerge(JSON.parse(JSON.stringify(DEF_CFG)),JSON.parse(s)))}}catch(e){}
   return JSON.parse(JSON.stringify(DEF_CFG));
 }
@@ -322,7 +324,7 @@ function toast(msg,type='ok'){
   c.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(100%)';t.style.transition='all .4s'},2600);setTimeout(()=>t.remove(),3000);
 }
 let cfmR=null;
-function cfm(msg){return new Promise(r=>{cfmR=r;document.getElementById('cfmMsg').textContent=msg;document.getElementById('cfmDlg').classList.add('open')})}
+function cfm(msg,btnText='确认删除'){return new Promise(r=>{cfmR=r;document.getElementById('cfmMsg').textContent=msg;document.getElementById('cfmYes').textContent=btnText;document.getElementById('cfmDlg').classList.add('open')})}
 document.getElementById('cfmYes').onclick=()=>{document.getElementById('cfmDlg').classList.remove('open');if(cfmR)cfmR(true)};
 document.getElementById('cfmNo').onclick=()=>{document.getElementById('cfmDlg').classList.remove('open');if(cfmR)cfmR(false)};
 
@@ -750,13 +752,13 @@ function rData(b){
       </div>
       <div class="card-b p-5">
         <h4 class="font-semibold mb-3" style="font-family:'Space Grotesk'">导出数据</h4>
-        <p class="text-sm mb-4" style="color:var(--txt2)">将当前所有配置导出为 JSON 文件。</p>
-        <button class="btn-p btn-sm" onclick="expData()"><i class="fa-solid fa-download"></i> 导出 JSON</button>
+        <p class="text-sm mb-4" style="color:var(--txt2)">将当前所有配置导出为数据文件，放到 data/ 目录即可自动加载。</p>
+        <button class="btn-p btn-sm" onclick="expData()"><i class="fa-solid fa-download"></i> 导出数据</button>
       </div>
       <div class="card-b p-5">
         <h4 class="font-semibold mb-3" style="font-family:'Space Grotesk'">导入数据</h4>
         <p class="text-sm mb-4" style="color:var(--txt2)">从 JSON 文件导入配置，将覆盖当前所有内容。</p>
-        <input type="file" id="impF" accept=".json" style="display:none" onchange="impData(event)">
+        <input type="file" id="impF" accept=".json,.js" style="display:none" onchange="impData(event)">
         <button class="btn-o btn-sm" onclick="document.getElementById('impF').click()"><i class="fa-solid fa-upload"></i> 选择文件导入</button>
       </div>
       <div class="card-b p-5" style="border-color:rgba(255,60,60,0.18)">
@@ -772,7 +774,7 @@ function rData(b){
           <p class="mb-1"><strong style="color:var(--txt)">方式二：GitHub Pages</strong> — 推送 index.html，Settings → Pages 发布</p>
           <p class="mb-1"><strong style="color:var(--txt)">方式三：Vercel / Netlify</strong> — 连接仓库自动部署</p>
           <p class="mb-1"><strong style="color:var(--txt)">方式四：Docker</strong> — nginx:alpine 镜像即可</p>
-          <p class="mt-3" style="color:var(--pri)"><em>修改代码 DEFAULT_CONFIG 可永久变更默认内容；上传图片以 Base64 存储。</em></p>
+          <p class="mt-3" style="color:var(--pri)"><em>修改代码 DEFAULT_CONFIG 可永久变更默认内容；导出 portfolio_data.js 放到 data/ 目录即可实现跨浏览器数据持久化；上传图片以 Base64 存储。</em></p>
         </div>
       </div>
     </div>`;
@@ -786,8 +788,8 @@ function changePwd(){
   if(n!==c){toast('两次输入的新密码不一致','err');return}
   setPwd(n);toast('密码已修改');document.getElementById('pw_o').value='';document.getElementById('pw_n').value='';document.getElementById('pw_c').value='';
 }
-function expData(){const bl=new Blob([JSON.stringify(cfg,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download=`portfolio-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);toast('数据已导出')}
-function impData(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=async e=>{try{const d=JSON.parse(e.target.result);const ok=await cfm('导入将覆盖当前所有数据，确定？');if(ok){cfg=migrate(d);saveCfg();renderAll();startTyping();renderATab('data');toast('数据已导入')}}catch{toast('文件格式错误','err')}};r.readAsText(f);ev.target.value=''}
+async function expData(){const js='var PORTFOLIO_DATA='+JSON.stringify(cfg,null,2)+';\n';const bl=new Blob([js],{type:'application/javascript'});try{const h=await window.showSaveFilePicker({suggestedName:'portfolio_data.js',types:[{description:'JavaScript',accept:{'application/javascript':['.js']}}]});const w=await h.createWritable();await w.write(bl);await w.close();toast('数据已保存，请将 portfolio_data.js 放入 data/ 目录')}catch(e){if(e.name==='AbortError')return;const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='portfolio_data.js';a.click();URL.revokeObjectURL(a.href);toast('数据已导出，请将 portfolio_data.js 放入 data/ 目录')}}
+function impData(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=async e=>{try{let t=e.target.result;const m=t.match(/var\s+PORTFOLIO_DATA\s*=\s*/);if(m){t=t.slice(m[0].length).replace(/;\s*$/,'')}const d=JSON.parse(t);const ok=await cfm('导入将覆盖当前所有数据，确定？');if(ok){cfg=migrate(d);saveCfg();renderAll();startTyping();renderATab('data');toast('数据已导入')}}catch{toast('文件格式错误','err')}};r.readAsText(f);ev.target.value=''}
 async function resetData(){const ok=await cfm('确定重置为默认配置？所有在线修改将丢失。');if(ok){localStorage.removeItem(SK);cfg=JSON.parse(JSON.stringify(DEF_CFG));saveCfg();renderAll();startTyping();renderATab('data');toast('已重置为默认配置')}}
 
 // ============================================================
