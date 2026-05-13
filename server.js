@@ -5,7 +5,7 @@ const crypto = require('crypto');
 const multer = require('multer');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // 数据文件路径
 const DATA_DIR = path.join(__dirname, 'data');
