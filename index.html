@@ -237,8 +237,21 @@
     </div>
   </div>
 
-<script src="./data/portfolio_data.js"></script>
 <script>
+// ============================================================
+//   API 基础
+// ============================================================
+let token = sessionStorage.getItem('auth_token');
+let unlocked = !!token;
+
+async function api(url, opts = {}) {
+  if (token) opts.headers = { ...opts.headers, 'Authorization': 'Bearer ' + token };
+  const res = await fetch(url, opts);
+  const json = await res.json();
+  if (!res.ok && res.status === 401) { unlocked = false; token = null; sessionStorage.removeItem('auth_token'); closeAdmin(); toast('会话已过期，请重新登录', 'err'); }
+  return json;
+}
+
 // ============================================================
 //   默认配置
 // ============================================================
@@ -277,45 +290,32 @@ const DEF_CFG={
 // ============================================================
 //   工具
 // ============================================================
-const SK='portfolio_cfg',PK='portfolio_pwd';
 function gid(){return '_'+Math.random().toString(36).substr(2,9)}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function hash(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return 'h'+Math.abs(h).toString(36)}
 
 // ============================================================
-//   配置管理
+//   配置管理 — 通过 API 读写 data/portfolio_data.json
 // ============================================================
-function loadCfg(){
-  if(typeof PORTFOLIO_DATA!=='undefined'){return migrate(deepMerge(JSON.parse(JSON.stringify(DEF_CFG)),PORTFOLIO_DATA))}
-  try{const s=localStorage.getItem(SK);if(s){return migrate(deepMerge(JSON.parse(JSON.stringify(DEF_CFG)),JSON.parse(s)))}}catch(e){}
+async function loadCfg(){
+  try{const res=await fetch('/api/data');const json=await res.json();if(json.success)return migrate(json.data)}catch(e){}
   return JSON.parse(JSON.stringify(DEF_CFG));
 }
-function saveCfg(){try{localStorage.setItem(SK,JSON.stringify(cfg))}catch(e){toast('保存失败','err')}autoExportFile()}
-let _fh=null;
-async function autoExportFile(){
-  if(typeof showSaveFilePicker!=='function')return;
-  const js='var PORTFOLIO_DATA='+JSON.stringify(cfg,null,2)+';\n';
-  const bl=new Blob([js],{type:'application/javascript'});
-  try{
-    if(!_fh){_fh=await showSaveFilePicker({suggestedName:'portfolio_data.js',types:[{description:'JavaScript',accept:{'application/javascript':['.js']}}]})}
-    const w=await _fh.createWritable();await w.write(bl);await w.close();
-  }catch(e){if(e.name==='AbortError'){_fh=null}else{_fh=null;const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='portfolio_data.js';a.click();URL.revokeObjectURL(a.href)}}
+async function saveCfg(){
+  if(!token)return;
+  try{await api('/api/data',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(cfg)})}catch(e){}
 }
-function deepMerge(t,s){for(const k in s){if(s[k]&&typeof s[k]==='object'&&!Array.isArray(s[k])){if(!t[k]||typeof t[k]!=='object')t[k]={};deepMerge(t[k],s[k])}else t[k]=s[k]}return t}
 function migrate(c){
   if(c.personal.stats&&!Array.isArray(c.personal.stats)){const o=c.personal.stats;c.personal.stats=[];if(o.years)c.personal.stats.push({id:gid(),label:'年开发经验',value:o.years});if(o.projects)c.personal.stats.push({id:gid(),label:'完成项目',value:o.projects});if(o.clients)c.personal.stats.push({id:gid(),label:'合作客户',value:o.clients});if(o.stars)c.personal.stats.push({id:gid(),label:'GitHub Stars',value:o.stars})}
   if(Array.isArray(c.personal.stats))c.personal.stats.forEach(s=>{if(!s.id)s.id=gid()});
   c.projects.forEach(p=>{if(p.star===undefined)p.star=3;if(p.showPreview===undefined)p.showPreview=true;if(p.showSource===undefined)p.showSource=true;if(p.showDetail===undefined)p.showDetail=true});
   return c;
 }
-let cfg=loadCfg();
+let cfg=null;
 
 // ============================================================
 //   密码
 // ============================================================
-function getPwdH(){return localStorage.getItem(PK)||hash('admin')}
-function setPwd(p){localStorage.setItem(PK,hash(p))}
-let unlocked=false;
+function getPwdH(){return token||''}
 
 // 密码明文切换
 function togglePwdVis(inputId,btn){
@@ -492,10 +492,13 @@ document.getElementById('adminTrigger').addEventListener('click',()=>{
   document.getElementById('loginOv').classList.add('open');
   setTimeout(()=>document.getElementById('loginPwd').focus(),100);
 });
-function tryLogin(){
-  const pwd=document.getElementById('loginPwd').value;
-  if(hash(pwd)===getPwdH()){unlocked=true;document.getElementById('loginOv').classList.remove('open');openAdmin()}
-  else{toast('密码错误','err');document.getElementById('loginPwd').value='';document.getElementById('loginPwd').focus()}
+async function tryLogin(){
+  const password=document.getElementById('loginPwd').value;
+  try{
+    const json=await api('/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password})});
+    if(json.success){token=json.token;sessionStorage.setItem('auth_token',token);unlocked=true;document.getElementById('loginOv').classList.remove('open');openAdmin()}
+    else{toast(json.message||'密码错误','err');document.getElementById('loginPwd').value='';document.getElementById('loginPwd').focus()}
+  }catch(e){toast('服务器错误','err')}
 }
 document.getElementById('loginPwd').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin()});
 function closeLogin(){document.getElementById('loginOv').classList.remove('open')}
@@ -762,13 +765,13 @@ function rData(b){
       </div>
       <div class="card-b p-5">
         <h4 class="font-semibold mb-3" style="font-family:'Space Grotesk'">导出数据</h4>
-        <p class="text-sm mb-4" style="color:var(--txt2)">将当前所有配置导出为数据文件，放到 data/ 目录即可自动加载。</p>
+        <p class="text-sm mb-4" style="color:var(--txt2)">将当前所有配置导出为 JSON 文件。</p>
         <button class="btn-p btn-sm" onclick="expData()"><i class="fa-solid fa-download"></i> 导出数据</button>
       </div>
       <div class="card-b p-5">
         <h4 class="font-semibold mb-3" style="font-family:'Space Grotesk'">导入数据</h4>
         <p class="text-sm mb-4" style="color:var(--txt2)">从 JSON 文件导入配置，将覆盖当前所有内容。</p>
-        <input type="file" id="impF" accept=".json,.js" style="display:none" onchange="impData(event)">
+        <input type="file" id="impF" accept=".json" style="display:none" onchange="impData(event)">
         <button class="btn-o btn-sm" onclick="document.getElementById('impF').click()"><i class="fa-solid fa-upload"></i> 选择文件导入</button>
       </div>
       <div class="card-b p-5" style="border-color:rgba(255,60,60,0.18)">
@@ -779,28 +782,30 @@ function rData(b){
       <div class="card-b p-5">
         <h4 class="font-semibold mb-3" style="font-family:'Space Grotesk'">部署说明</h4>
         <div class="text-sm leading-relaxed" style="color:var(--txt2)">
-          <p class="mb-2">本站为纯静态单文件，部署非常简单：</p>
-          <p class="mb-1"><strong style="color:var(--txt)">方式一：直接上传</strong> — 放到 Web 服务器静态目录</p>
-          <p class="mb-1"><strong style="color:var(--txt)">方式二：GitHub Pages</strong> — 推送 index.html，Settings → Pages 发布</p>
-          <p class="mb-1"><strong style="color:var(--txt)">方式三：Vercel / Netlify</strong> — 连接仓库自动部署</p>
-          <p class="mb-1"><strong style="color:var(--txt)">方式四：Docker</strong> — nginx:alpine 镜像即可</p>
-          <p class="mt-3" style="color:var(--pri)"><em>修改代码 DEFAULT_CONFIG 可永久变更默认内容；导出 portfolio_data.js 放到 data/ 目录即可实现跨浏览器数据持久化；上传图片以 Base64 存储。</em></p>
+          <p class="mb-2">本站基于 Node.js 后端，部署方式：</p>
+          <p class="mb-1"><strong style="color:var(--txt)">启动服务</strong> — <code style="color:var(--pri)">npm start</code> 或 <code style="color:var(--pri)">node server.js</code></p>
+          <p class="mb-1"><strong style="color:var(--txt)">数据存储</strong> — 所有数据保存在 <code style="color:var(--pri)">data/portfolio_data.json</code></p>
+          <p class="mb-1"><strong style="color:var(--txt)">导出/导入</strong> — 支持 JSON 格式导出和导入</p>
+          <p class="mt-3" style="color:var(--pri)"><em>修改 server.js 中的 DEFAULT_DATA 可变更默认内容；数据自动持久化到 data/ 目录；上传图片以 Base64 存储。</em></p>
         </div>
       </div>
     </div>`;
 }
 
-function changePwd(){
+async function changePwd(){
   const o=document.getElementById('pw_o').value,n=document.getElementById('pw_n').value,c=document.getElementById('pw_c').value;
   if(!o||!n||!c){toast('请填写所有字段','err');return}
-  if(hash(o)!==getPwdH()){toast('当前密码错误','err');return}
   if(n.length<3){toast('新密码至少3位','err');return}
   if(n!==c){toast('两次输入的新密码不一致','err');return}
-  setPwd(n);toast('密码已修改');document.getElementById('pw_o').value='';document.getElementById('pw_n').value='';document.getElementById('pw_c').value='';
+  try{
+    const json=await api('/api/change-pwd',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({oldPassword:o,newPassword:n})});
+    if(json.success){token=json.token||'';sessionStorage.setItem('auth_token',token);toast('密码已修改');document.getElementById('pw_o').value='';document.getElementById('pw_n').value='';document.getElementById('pw_c').value=''}
+    else toast(json.message||'修改失败','err');
+  }catch(e){toast('服务器错误','err')}
 }
-async function expData(){const js='var PORTFOLIO_DATA='+JSON.stringify(cfg,null,2)+';\n';const bl=new Blob([js],{type:'application/javascript'});try{const h=await window.showSaveFilePicker({suggestedName:'portfolio_data.js',types:[{description:'JavaScript',accept:{'application/javascript':['.js']}}]});const w=await h.createWritable();await w.write(bl);await w.close();toast('数据已保存，请将 portfolio_data.js 放入 data/ 目录')}catch(e){if(e.name==='AbortError')return;const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='portfolio_data.js';a.click();URL.revokeObjectURL(a.href);toast('数据已导出，请将 portfolio_data.js 放入 data/ 目录')}}
-function impData(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=async e=>{try{let t=e.target.result;const m=t.match(/var\s+PORTFOLIO_DATA\s*=\s*/);if(m){t=t.slice(m[0].length).replace(/;\s*$/,'')}const d=JSON.parse(t);const ok=await cfm('导入将覆盖当前所有数据，确定？');if(ok){cfg=migrate(d);saveCfg();renderAll();startTyping();renderATab('data');toast('数据已导入')}}catch{toast('文件格式错误','err')}};r.readAsText(f);ev.target.value=''}
-async function resetData(){const ok=await cfm('确定重置为默认配置？所有在线修改将丢失。');if(ok){localStorage.removeItem(SK);cfg=JSON.parse(JSON.stringify(DEF_CFG));saveCfg();renderAll();startTyping();renderATab('data');toast('已重置为默认配置')}}
+function expData(){const bl=new Blob([JSON.stringify(cfg,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='portfolio_data.json';a.click();URL.revokeObjectURL(a.href);toast('数据已导出')}
+async function impData(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=async e=>{try{const d=JSON.parse(e.target.result);const ok=await cfm('导入将覆盖当前所有数据，确定？');if(ok){cfg=migrate(d);await saveCfg();renderAll();startTyping();renderATab('data');toast('数据已导入')}}catch{toast('文件格式错误','err')}};r.readAsText(f);ev.target.value=''}
+async function resetData(){const ok=await cfm('确定重置为默认配置？所有修改将丢失。');if(ok){cfg=JSON.parse(JSON.stringify(DEF_CFG));await saveCfg();renderAll();startTyping();renderATab('data');toast('已重置为默认配置')}}
 
 // ============================================================
 //   打字效果
@@ -952,7 +957,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeAdmin();closeM
 // ============================================================
 //   初始化
 // ============================================================
-document.addEventListener('DOMContentLoaded',()=>{
+document.addEventListener('DOMContentLoaded',async()=>{
+  cfg=await loadCfg();
   renderAll();startTyping();initBg();initCursor();initReveal();initNav();
 });
 </script>
