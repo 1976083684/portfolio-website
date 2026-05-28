@@ -7,11 +7,10 @@
 [![Express](https://img.shields.io/badge/Express-4.x-000000?style=flat&logo=express&logoColor=white)](https://expressjs.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v3-06B6D4?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](LICENSE)
+
 **一个现代化的个人作品集网站模板，内置可视化管理面板，无需数据库即可快速部署。**
 
-[在线预览](https://curious-sunburst-3dc7ea.netlify.app) · [报告问题](../../issues) · [功能建议](../../issues)
-
-
+[在线预览](https://curious-sunburst-3dc7ea.netlify.app)
 
 ![个人作品集](images/README_images/个人作品集.png)
 
@@ -344,7 +343,6 @@ SOFTWARE.
 
 ---
 
-<div align="center">
+
 **如果这个项目对你有帮助，请给一个 [Star](../../stargazers) 支持一下！**
 
-</div>
