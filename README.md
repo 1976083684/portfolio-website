@@ -24,6 +24,11 @@
 - [管理面板](#管理面板)
 - [API 文档](#api-文档)
 - [部署指南](#部署指南)
+  - [方案一：Linux + PM2 部署](#方案一linux--pm2-部署推荐)
+  - [方案二：Docker 部署](#方案二docker-部署)
+  - [方案三：Nginx 反向代理](#方案三nginx-反向代理)
+  - [后续更新与维护](#后续更新与维护)
+  - [常见运维场景](#常见运维场景)
 - [浏览器支持](#浏览器支持)
 - [贡献指南](#贡献指南)
 - [许可证](#许可证)
@@ -210,7 +215,43 @@ curl -X POST http://localhost:3001/api/data \
 
 ## 部署指南
 
-### PM2 部署（推荐）
+### 方案一：Linux + PM2 部署（推荐）
+
+适合长期运行的生产环境，PM2 提供进程守护、日志管理、开机自启等功能。
+
+#### 1. 安装 Node.js
+
+```bash
+# Ubuntu/Debian
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# CentOS/RHEL
+curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
+sudo yum install -y nodejs
+
+# 验证安装
+node -v  # >= 18.0.0
+npm -v
+```
+
+#### 2. 部署项目
+
+```bash
+# 克隆项目
+git clone <your-repo-url>
+cd portfolio-website
+
+# 安装依赖
+npm install --production
+
+# 配置环境变量
+cp .env.example .env
+# 编辑 .env 设置端口和环境
+vi .env
+```
+
+#### 3. 使用 PM2 管理进程
 
 ```bash
 # 安装 PM2
@@ -219,46 +260,204 @@ npm install -g pm2
 # 启动服务
 pm2 start server.js --name portfolio
 
-# 设置开机自启
-pm2 save
+# 设置开机自启（生成启动脚本）
 pm2 startup
+pm2 save
 
-# 常用命令
-pm2 status          # 查看状态
-pm2 logs portfolio  # 查看日志
-pm2 restart portfolio  # 重启服务
-```
-
-指定端口启动：
-
-```bash
-# Windows
-set PORT=8080 && pm2 start server.js --name portfolio
-
-# Linux/macOS
+# 指定端口启动
 PORT=8080 pm2 start server.js --name portfolio
 ```
 
-### Docker 部署
+#### 4. PM2 常用命令
+
+```bash
+# 进程管理
+pm2 status                # 查看所有进程状态
+pm2 list                  # 同上，更详细的列表
+pm2 stop portfolio        # 停止服务
+pm2 start portfolio       # 启动服务
+pm2 restart portfolio     # 重启服务
+pm2 reload portfolio      # 平滑重载（0 秒停机）
+pm2 delete portfolio      # 删除进程
+
+# 日志管理
+pm2 logs portfolio        # 查看实时日志
+pm2 logs --lines 100      # 查看最近 100 行日志
+pm2 flush                 # 清空所有日志
+pm2 logrotate             # 设置日志轮转
+
+# 监控
+pm2 monit                 # 实时监控 CPU/内存
+pm2 show portfolio        # 查看进程详情
+
+# 集群模式（多核 CPU）
+pm2 start server.js -i max --name portfolio  # 自动使用所有 CPU 核心
+```
+
+---
+
+### 方案二：Docker 部署
+
+适合容器化环境，便于迁移和扩展。
+
+#### 1. 创建 Dockerfile
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --production
+COPY . .
+# 创建数据目录
+RUN mkdir -p data/prod data/local
+# 设置环境变量
+ENV NODE_ENV=prod
+ENV PORT=3001
+EXPOSE 3001
+# 使用非 root 用户运行
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+RUN chown -R nodejs:nodejs /app
+USER nodejs
+CMD ["node", "server.js"]
+```
+
+#### 2. 创建 .dockerignore
+
+```
+node_modules
+data/prod
+data/local
+.env
+.git
+*.md
+*.png
+```
+
+#### 3. 构建与运行
 
 ```bash
 # 构建镜像
 docker build -t portfolio .
 
 # 运行容器
-docker run -d -p 3001:3001 --name portfolio portfolio
+docker run -d \
+  --name portfolio \
+  -p 3001:3001 \
+  -v $(pwd)/data:/app/data \
+  --restart unless-stopped \
+  portfolio
 
-# 或使用 docker-compose
-docker-compose up -d
+# 使用自定义端口
+docker run -d \
+  --name portfolio \
+  -p 8080:3001 \
+  -e PORT=3001 \
+  -v portfolio-data:/app/data \
+  --restart unless-stopped \
+  portfolio
 ```
 
-### Nginx 反向代理
+#### 4. Docker Compose 部署
+
+创建 `docker-compose.yml`：
+
+```yaml
+version: '3.8'
+
+services:
+  portfolio:
+    build: .
+    container_name: portfolio
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=prod
+      - PORT=3001
+    volumes:
+      - portfolio-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  portfolio-data:
+```
+
+启动服务：
+
+```bash
+# 启动
+docker-compose up -d
+
+# 查看日志
+docker-compose logs -f
+
+# 停止
+docker-compose down
+```
+
+#### 5. Docker 常用命令
+
+```bash
+# 容器管理
+docker ps                        # 查看运行中的容器
+docker ps -a                     # 查看所有容器
+docker stop portfolio            # 停止容器
+docker start portfolio           # 启动容器
+docker restart portfolio         # 重启容器
+docker rm portfolio              # 删除容器
+
+# 日志查看
+docker logs portfolio            # 查看日志
+docker logs -f portfolio         # 实时跟踪日志
+docker logs --tail 100 portfolio # 最近 100 行
+
+# 进入容器
+docker exec -it portfolio sh     # 进入容器终端
+
+# 镜像管理
+docker images                    # 查看镜像
+docker rmi portfolio             # 删除镜像
+docker system prune              # 清理无用资源
+```
+
+---
+
+### 方案三：Nginx 反向代理
+
+配合 PM2 或 Docker 使用，提供 HTTPS、负载均衡、静态缓存等功能。
+
+#### 1. 安装 Nginx
+
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install nginx
+
+# CentOS/RHEL
+sudo yum install epel-release
+sudo yum install nginx
+
+# 启动并设置开机自启
+sudo systemctl start nginx
+sudo systemctl enable nginx
+```
+
+#### 2. 配置反向代理
+
+创建配置文件 `/etc/nginx/conf.d/portfolio.conf`：
 
 ```nginx
 server {
     listen 80;
-    server_name your-domain.com;
+    server_name your-domain.com;  # 替换为你的域名
 
+    # 静态资源缓存
+    location ~* \.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        proxy_pass http://127.0.0.1:3001;
+        expires 7d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # API 和页面代理
     location / {
         proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
@@ -267,9 +466,208 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_cache_bypass $http_upgrade;
+        
+        # 超时设置
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
     }
+
+    # 限制请求体大小（图片上传）
+    client_max_body_size 50m;
 }
+```
+
+#### 3. 启用 HTTPS（Let's Encrypt）
+
+```bash
+# 安装 Certbot
+sudo apt install certbot python3-certbot-nginx  # Ubuntu/Debian
+sudo yum install certbot python3-certbot-nginx  # CentOS
+
+# 获取证书并自动配置
+sudo certbot --nginx -d your-domain.com
+
+# 测试自动续期
+sudo certbot renew --dry-run
+
+# 设置自动续期定时任务
+sudo crontab -e
+# 添加：0 3 * * * certbot renew --quiet
+```
+
+#### 4. Nginx 常用命令
+
+```bash
+# 服务管理
+sudo systemctl start nginx      # 启动
+sudo systemctl stop nginx       # 停止
+sudo systemctl restart nginx    # 重启
+sudo systemctl reload nginx     # 平滑重载配置
+sudo systemctl status nginx     # 查看状态
+
+# 配置检查
+sudo nginx -t                   # 测试配置语法
+sudo nginx -T                   # 测试并显示完整配置
+
+# 日志查看
+sudo tail -f /var/log/nginx/access.log  # 访问日志
+sudo tail -f /var/log/nginx/error.log   # 错误日志
+```
+
+---
+
+### 后续更新与维护
+
+#### 代码更新流程
+
+**PM2 方式：**
+
+```bash
+# 1. 进入项目目录
+cd /path/to/portfolio-website
+
+# 2. 拉取最新代码
+git pull origin master
+
+# 3. 安装新依赖（如有）
+npm install --production
+
+# 4. 平滑重启（0 秒停机）
+pm2 reload portfolio
+
+# 5. 验证更新
+pm2 logs portfolio --lines 20
+```
+
+**Docker 方式：**
+
+```bash
+# 1. 拉取最新代码
+git pull origin master
+
+# 2. 重新构建镜像
+docker build -t portfolio .
+
+# 3. 停止并删除旧容器
+docker stop portfolio
+docker rm portfolio
+
+# 4. 启动新容器（数据通过 volume 保留）
+docker run -d \
+  --name portfolio \
+  -p 3001:3001 \
+  -v portfolio-data:/app/data \
+  --restart unless-stopped \
+  portfolio
+
+# 或使用 docker-compose
+docker-compose down
+docker-compose build
+docker-compose up -d
+```
+
+#### 数据备份与恢复
+
+```bash
+# 备份数据目录（PM2 方式）
+tar -czf portfolio-backup-$(date +%Y%m%d).tar.gz data/prod/
+
+# 备份 Docker 数据卷
+docker run --rm -v portfolio-data:/data -v $(pwd):/backup alpine \
+  tar czf /backup/portfolio-data-$(date +%Y%m%d).tar.gz -C /data .
+
+# 恢复 Docker 数据卷
+docker run --rm -v portfolio-data:/data -v $(pwd):/backup alpine \
+  tar xzf /backup/portfolio-data-20240101.tar.gz -C /data
+
+# 通过管理面板导出
+# 访问网站 → 齿轮图标 → 数据管理 → 导出 JSON
+```
+
+#### 常见运维场景
+
+**场景 1：修改端口**
+
+```bash
+# PM2 方式
+vi .env  # 修改 PORT=8080
+pm2 restart portfolio
+
+# Docker 方式
+docker stop portfolio
+docker rm portfolio
+docker run -d --name portfolio -p 8080:3001 \
+  -v portfolio-data:/app/data --restart unless-stopped portfolio
+```
+
+**场景 2：重置密码**
+
+```bash
+# 删除密码文件，重启后密码恢复为默认 admin
+rm data/prod/.pwd
+pm2 restart portfolio  # 或 docker restart portfolio
+```
+
+**场景 3：查看实时日志**
+
+```bash
+# PM2
+pm2 logs portfolio --lines 50
+
+# Docker
+docker logs -f portfolio --tail 50
+```
+
+**场景 4：磁盘空间清理**
+
+```bash
+# 清理 PM2 日志
+pm2 flush
+
+# 清理 Docker 无用资源
+docker system prune -a
+
+# 清理 Node.js 缓存
+npm cache clean --force
+```
+
+**场景 5：性能监控**
+
+```bash
+# PM2 监控
+pm2 monit
+
+# Docker 资源占用
+docker stats portfolio
+
+# 系统资源
+htop
+df -h  # 磁盘使用
+free -h  # 内存使用
+```
+
+**场景 6：服务异常排查**
+
+```bash
+# 检查进程是否运行
+pm2 status  # 或 docker ps
+
+# 查看错误日志
+pm2 logs portfolio --err --lines 100
+
+# 检查端口占用
+sudo lsof -i :3001
+sudo netstat -tlnp | grep 3001
+
+# 检查防火墙
+sudo ufw status  # Ubuntu
+sudo firewall-cmd --list-all  # CentOS
+
+# 测试服务响应
+curl -I http://localhost:3001
 ```
 
 ## 浏览器支持
