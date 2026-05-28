@@ -1,6 +1,5 @@
 # Portfolio Website
 
-<div align="center">
 [![HTML5](https://img.shields.io/badge/HTML5-%23E34F26?style=flat&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![CSS3](https://img.shields.io/badge/CSS3-%231572B6?style=flat&logo=css3&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/CSS)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=flat&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
@@ -8,16 +7,11 @@
 [![Express](https://img.shields.io/badge/Express-4.x-000000?style=flat&logo=express&logoColor=white)](https://expressjs.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-v3-06B6D4?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](LICENSE)
-
-
-
-
-
 **一个现代化的个人作品集网站模板，内置可视化管理面板，无需数据库即可快速部署。**
 
 [在线预览](https://curious-sunburst-3dc7ea.netlify.app) · [报告问题](../../issues) · [功能建议](../../issues)
 
-</div>
+
 
 ![个人作品集](images/README_images/个人作品集.png)
 
