@@ -2,6 +2,14 @@
 chcp 65001 >nul
 title 个人作品集 - 启动中...
 
+:: 从 .env 读取端口，默认 3001
+set PORT=3001
+if exist ".env" (
+    for /f "usebackq tokens=1,* delims==" %%a in (".env") do (
+        if /i "%%a"=="PORT" set PORT=%%b
+    )
+)
+
 echo.
 echo   ╔══════════════════════════════════════╗
 echo   ║      个人作品集网站 - 一键启动       ║
@@ -36,10 +44,10 @@ if not exist "node_modules\" (
 :: 启动服务器
 echo.
 echo   [→] 正在启动服务器...
-start "" http://localhost:3000
+start "" http://localhost:%PORT%
 echo.
 echo   ╔══════════════════════════════════════╗
-echo   ║   服务已启动: http://localhost:3000   ║
+echo   ║   服务已启动: http://localhost:%PORT%
 echo   ║   默认密码: admin                     ║
 echo   ║   按 Ctrl+C 停止服务                  ║
 echo   ╚══════════════════════════════════════╝

@@ -1,6 +1,12 @@
 #!/bin/bash
 # 个人作品集网站 - 一键启动 (Linux / macOS)
 
+# 从 .env 读取端口，默认 3001
+PORT=3001
+if [ -f ".env" ]; then
+    PORT=$(grep -E "^PORT=" .env | cut -d'=' -f2 | tr -d ' \r')
+fi
+
 echo ""
 echo "  ╔══════════════════════════════════════╗"
 echo "  ║      个人作品集网站 - 一键启动       ║"
@@ -33,7 +39,7 @@ echo ""
 echo "  [→] 正在启动服务器..."
 echo ""
 echo "  ╔══════════════════════════════════════╗"
-echo "  ║   服务已启动: http://localhost:3000   ║"
+echo "  ║   服务已启动: http://localhost:${PORT}   ║"
 echo "  ║   默认密码: admin                     ║"
 echo "  ║   按 Ctrl+C 停止服务                  ║"
 echo "  ╚══════════════════════════════════════╝"
@@ -41,7 +47,7 @@ echo ""
 
 # 尝试自动打开浏览器
 if command -v xdg-open &> /dev/null; then
-    xdg-open http://localhost:3000 &> /dev/null &
+    xdg-open http://localhost:${PORT} &> /dev/null &
 fi
 
 node server.js

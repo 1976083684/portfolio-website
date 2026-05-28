@@ -1,0 +1,80 @@
+/* ============================================================
+ *  基础样式 — 变量、重置、排版、滚动条、通用组件、响应式
+ * ============================================================ */
+
+/* --- CSS 变量（主题色、背景、边框、文字色） --- */
+:root{
+  --bg:#07070d;--bg-s:#0e0e17;--card:#12121d;--card-h:#191926;
+  --bdr:rgba(255,255,255,0.05);--bdr-h:rgba(0,229,160,0.25);
+  --pri:#00e5a0;--pri-d:rgba(0,229,160,0.12);
+  --acc:#ff6b2b;--acc-d:rgba(255,107,43,0.12);
+  --txt:#e8e8f0;--txt2:#8888a0;--txt3:#555570;
+}
+
+/* --- 全局重置 --- */
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--pri) var(--bg)}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);overflow-x:hidden}
+h1,h2,h3,h4,h5,h6{font-family:'Space Grotesk',sans-serif}
+
+/* --- 自定义滚动条 --- */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--pri);border-radius:3px}
+
+/* --- 章节标题 --- */
+.sec-title{font-size:2.5rem;font-weight:700;letter-spacing:-0.02em}
+.sec-title span{color:var(--pri)}
+
+/* --- 发光点装饰 --- */
+.glow-dot{width:8px;height:8px;border-radius:50%;background:var(--pri);box-shadow:0 0 12px var(--pri),0 0 24px rgba(0,229,160,0.3)}
+
+/* --- 通用卡片 --- */
+.card-b{background:var(--card);border:1px solid var(--bdr);border-radius:16px;transition:all .4s cubic-bezier(.25,.46,.45,.94)}
+.card-b:hover{border-color:var(--bdr-h);background:var(--card-h);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,229,160,0.06)}
+
+/* --- 标签 --- */
+.tag{display:inline-block;padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:500;background:var(--pri-d);color:var(--pri);border:1px solid rgba(0,229,160,0.18)}
+.tag-acc{background:var(--acc-d);color:var(--acc);border-color:rgba(255,107,43,0.18)}
+
+/* --- 按钮：主按钮、描边按钮、小号、危险 --- */
+.btn-p{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--pri);color:var(--bg);font-weight:600;border-radius:12px;border:none;cursor:pointer;transition:all .3s;font-size:.95rem;font-family:inherit}
+.btn-p:hover{box-shadow:0 8px 30px rgba(0,229,160,0.3);transform:translateY(-2px)}
+.btn-o{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:transparent;color:var(--pri);font-weight:600;border-radius:12px;border:1px solid rgba(0,229,160,0.35);cursor:pointer;transition:all .3s;font-size:.95rem;font-family:inherit}
+.btn-o:hover{background:var(--pri-d);border-color:var(--pri)}
+.btn-sm{padding:6px 16px;font-size:.8rem;border-radius:8px}
+.btn-danger{background:rgba(255,60,60,0.12)!important;color:#ff5555!important;border:1px solid rgba(255,60,60,0.25)!important}
+.btn-danger:hover{background:rgba(255,60,60,0.22)!important}
+
+/* --- 滚动入场动画 --- */
+.reveal{opacity:0;transform:translateY(40px);transition:all .8s cubic-bezier(.25,.46,.45,.94)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* --- 打字光标 --- */
+.typing-cursor{display:inline-block;width:3px;height:1em;background:var(--pri);margin-left:4px;animation:blink 1s infinite;vertical-align:text-bottom}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+
+/* --- 统计数字 --- */
+.stat-num{font-family:'Space Grotesk',sans-serif;font-size:2.5rem;font-weight:700;color:var(--pri);line-height:1}
+
+/* --- 通用输入框（联系表单等） --- */
+.c-input{width:100%;padding:14px 18px;background:var(--bg);border:1px solid var(--bdr);border-radius:12px;color:var(--txt);font-size:.95rem;font-family:inherit;transition:border-color .3s}
+.c-input:focus{outline:none;border-color:var(--pri)}
+
+/* --- 社交链接图标 --- */
+.social-lk{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;border:1px solid var(--bdr);color:var(--txt2);transition:all .3s;text-decoration:none}
+.social-lk:hover{color:var(--pri);border-color:var(--bdr-h);background:var(--pri-d);transform:translateY(-3px)}
+
+/* --- 鼠标跟随光效 --- */
+.cursor-glow{position:fixed;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,160,0.05) 0%,transparent 70%);pointer-events:none;z-index:0;transform:translate(-50%,-50%)}
+
+/* --- 响应式 --- */
+@media(max-width:768px){
+  .sec-title{font-size:1.8rem}
+  .stat-num{font-size:1.8rem}
+}
+
+/* --- 降低动画偏好 --- */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}

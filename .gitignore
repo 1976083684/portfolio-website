@@ -1,2 +1,8 @@
 node_modules/
-data/.pwd
+.env
+data/prod/
+data/local/
+data/portfolio_data.json
+.idea/
+.claude/
+.playwright-cli/

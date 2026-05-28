@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -6,9 +7,10 @@ const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const NODE_ENV = process.env.NODE_ENV || 'dev';
 
-// 数据文件路径
-const DATA_DIR = path.join(__dirname, 'data');
+// 数据文件路径 — 根据环境区分目录
+const DATA_DIR = path.join(__dirname, 'data', NODE_ENV === 'prod' ? 'prod' : 'local');
 const DATA_FILE = path.join(DATA_DIR, 'portfolio_data.json');
 const PWD_FILE = path.join(DATA_DIR, '.pwd');
 
@@ -19,6 +21,7 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 //   默认数据
 // ============================================================
 const DEFAULT_DATA = {
+  sortMode: "star-desc",
   personal: {
     name: "陈逸飞", logo: "YF.",
     titles: ["全栈开发工程师", "前端架构师", "开源贡献者", "UI/UX 爱好者"],
@@ -35,12 +38,12 @@ const DEFAULT_DATA = {
     ]
   },
   projects: [
-    { id: 1, title: "CloudFlow", description: "云端工作流编排平台，支持可视化拖拽构建 CI/CD 管道，实时监控与日志聚合，服务于 50+ 企业团队", tags: ["Vue 3", "Go", "gRPC", "K8s"], image: "https://picsum.photos/seed/cloudflow/600/400.jpg", link: "#", github: "#", star: 5, showPreview: true, showSource: true, showDetail: true },
-    { id: 2, title: "PixelForge", description: "基于 WebGL 的在线图像编辑器，支持图层、滤镜、矢量绘制和实时协作，核心渲染引擎自研", tags: ["React", "WebGL", "TypeScript"], image: "https://picsum.photos/seed/pixelforge/600/400.jpg", link: "#", github: "#", star: 5, showPreview: true, showSource: true, showDetail: true },
-    { id: 3, title: "DataPulse", description: "实时数据可视化仪表盘，支持百万级数据点渲染，拖拽式图表配置，深色/浅色主题自适应", tags: ["Vue 3", "D3.js", "WebSocket"], image: "https://picsum.photos/seed/datapulse/600/400.jpg", link: "#", github: "#", star: 4, showPreview: true, showSource: true, showDetail: true },
-    { id: 4, title: "NexusChat", description: "端到端加密即时通讯应用，支持群组、文件共享、语音消息，消息同步延迟小于 100ms", tags: ["React", "Node.js", "Socket.io"], image: "https://picsum.photos/seed/nexuschat/600/400.jpg", link: "#", github: "#", star: 3, showPreview: true, showSource: true, showDetail: true },
-    { id: 5, title: "SwiftCLI", description: "轻量级命令行工具框架，自动生成帮助文档、参数解析、子命令嵌套，npm 周下载量 2K+", tags: ["Node.js", "TypeScript"], image: "https://picsum.photos/seed/swiftcli/600/400.jpg", link: "#", github: "#", star: 4, showPreview: true, showSource: true, showDetail: true },
-    { id: 6, title: "AeroNote", description: "Markdown 笔记应用，支持双向链接、知识图谱、离线使用，数据本地存储注重隐私", tags: ["Svelte", "IndexedDB", "ProseMirror"], image: "https://picsum.photos/seed/aeronote/600/400.jpg", link: "#", github: "#", star: 3, showPreview: true, showSource: true, showDetail: true }
+    { id: 1, title: "CloudFlow", description: "云端工作流编排平台，支持可视化拖拽构建 CI/CD 管道，实时监控与日志聚合，服务于 50+ 企业团队", tags: ["Vue 3", "Go", "gRPC", "K8s"], image: "https://picsum.photos/seed/cloudflow/600/400.jpg", link: "#", github: "#", star: 5, order: 0, showPreview: true, showSource: true, showDetail: true },
+    { id: 2, title: "PixelForge", description: "基于 WebGL 的在线图像编辑器，支持图层、滤镜、矢量绘制和实时协作，核心渲染引擎自研", tags: ["React", "WebGL", "TypeScript"], image: "https://picsum.photos/seed/pixelforge/600/400.jpg", link: "#", github: "#", star: 5, order: 1, showPreview: true, showSource: true, showDetail: true },
+    { id: 3, title: "DataPulse", description: "实时数据可视化仪表盘，支持百万级数据点渲染，拖拽式图表配置，深色/浅色主题自适应", tags: ["Vue 3", "D3.js", "WebSocket"], image: "https://picsum.photos/seed/datapulse/600/400.jpg", link: "#", github: "#", star: 4, order: 2, showPreview: true, showSource: true, showDetail: true },
+    { id: 4, title: "NexusChat", description: "端到端加密即时通讯应用，支持群组、文件共享、语音消息，消息同步延迟小于 100ms", tags: ["React", "Node.js", "Socket.io"], image: "https://picsum.photos/seed/nexuschat/600/400.jpg", link: "#", github: "#", star: 3, order: 3, showPreview: true, showSource: true, showDetail: true },
+    { id: 5, title: "SwiftCLI", description: "轻量级命令行工具框架，自动生成帮助文档、参数解析、子命令嵌套，npm 周下载量 2K+", tags: ["Node.js", "TypeScript"], image: "https://picsum.photos/seed/swiftcli/600/400.jpg", link: "#", github: "#", star: 4, order: 4, showPreview: true, showSource: true, showDetail: true },
+    { id: 6, title: "AeroNote", description: "Markdown 笔记应用，支持双向链接、知识图谱、离线使用，数据本地存储注重隐私", tags: ["Svelte", "IndexedDB", "ProseMirror"], image: "https://picsum.photos/seed/aeronote/600/400.jpg", link: "#", github: "#", star: 3, order: 5, showPreview: true, showSource: true, showDetail: true }
   ],
   skills: [
     { category: "前端开发", items: [{ name: "Vue.js / Nuxt", level: 95 }, { name: "React / Next.js", level: 90 }, { name: "TypeScript", level: 92 }, { name: "CSS / Tailwind", level: 88 }, { name: "Three.js / WebGL", level: 75 }] },
@@ -184,7 +187,8 @@ app.post('/api/change-pwd', checkAuth, (req, res) => {
 //   启动服务
 // ============================================================
 app.listen(PORT, () => {
-  console.log(`\n  🚀 作品集服务已启动: http://localhost:${PORT}\n`);
+  console.log(`\n  🚀 作品集服务已启动: http://localhost:${PORT}`);
+  console.log(`  📦 运行环境: ${NODE_ENV}`);
   console.log(`  📁 数据目录: ${DATA_DIR}`);
   console.log(`  🔑 默认密码: admin\n`);
 });
